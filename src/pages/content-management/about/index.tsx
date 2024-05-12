@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { Reorder } from 'framer-motion'
 import { ChevronsUpDown, Trash } from 'lucide-react'
 
@@ -6,69 +6,261 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import { API } from '@/lib/API'
+import { About, ResponseApi } from '@/types/API'
+import { AxiosError } from 'axios'
+import { useGet } from '@/hooks/useGet'
+
+// interface formArray {
+//   id: number;
+//   name: string;
+//   img: File | string | undefined;
+//   link: string;
+//   order?: string;
+//   created_at?: string,
+//   updated_at?: string
+// }
+
+interface ImgProps {
+  id: number;
+  name: string;
+  img: File | Blob | MediaSource;
+}
 
 export const AboutPage = () => {
-  const [logoImages, setLogoImages] = useState(data)
-  const [galleryImages, setGalleryImages] = useState(data)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const { data } = useGet<ResponseApi<About>>("about", "/about")
+
+  const { toast } = useToast();
+  
+  const news_headline = useRef<HTMLInputElement>(null)
+  const [feat, setFeat] = useState<File>()  
+  const desc = useRef<HTMLTextAreaElement>(null)
+  const address = useRef<HTMLInputElement>(null)
+  const phone = useRef<HTMLInputElement>(null)
+  const website = useRef<HTMLInputElement>(null)
+  const email = useRef<HTMLInputElement>(null)
+  const sosmedLink = useRef<HTMLInputElement>(null)
+  const [logos, setLogos] = useState<ImgProps[]>([])
+  const [carousel, setCarousel] = useState<ImgProps[]>([])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formInput = { 
+      news_headline: news_headline?.current?.value, 
+      featured_img: feat, 
+      desc: desc?.current?.value, 
+      address: address?.current?.value, 
+      phone_number: phone?.current?.value, 
+      website: website?.current?.value, 
+      email: email?.current?.value, 
+      sosmed_link: sosmedLink?.current?.value, 
+      logos,
+      carousel
+    }
+    
+    try {
+      await API.post<typeof formInput, ResponseApi<About>>(`/about`, formInput, {
+        Accept: 'multipart/form-data',
+        "Content-Type": 'multipart/form-data',
+      });
+      await toast({
+        title: `Success!`,
+        description: "Updated the data",
+      })
+    } catch (error) {
+      let errorMessage = "Error posting data";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error instanceof AxiosError) {
+        errorMessage = error.response?.data.message;
+      }
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: errorMessage
+      })
+    }
+  };
+
+  function handleChangeFeat(e: React.FormEvent<HTMLInputElement>) {
+    const files = (e.target as HTMLInputElement).files
+    if (files !== null) {
+      setFeat(files[0]);
+    }
+  }
+
+  function onChangeLogos(e: React.FormEvent<HTMLInputElement>) {
+    const files = (e.target as HTMLInputElement).files
+    if (files !== null) {   
+      const newLogo = {
+        id: logos?.length + 1,
+        img: files[0],
+        name: files[0].name
+      };
+      const updatedLogos = [...logos, newLogo];
+      setLogos(updatedLogos);
+    }
+  }
+
+  function onChangeCarousel(e: React.FormEvent<HTMLInputElement>) {
+    const files = (e.target as HTMLInputElement).files
+    if (files !== null) {
+      const newCarousel = {
+        id: carousel.length + 1,
+        img: files[0],
+        name: files[0].name
+      };
+      const updatedCarousel = [...carousel, newCarousel];
+      setCarousel(updatedCarousel);
+    }
+  }
 
   return (
     <section className='space-y-5'>
       <h1 className='font-bold text-3xl'>About</h1>
-      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container'>
+      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' onSubmit={handleSubmit}>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='News Headline' required placeholder='Enter headline' />
-          <Input label='Tag' required placeholder='Enter tag name' />
-          <Textarea label='Description' placeholder='Enter your description' rows={20} />
+          <Input label='News Headline' required placeholder='Enter headline' ref={news_headline} defaultValue={data?.data.news_headline} />
+
+          {/* FEATURED IMAGE ===================================== */}
+          <fieldset>
+            <Label className='block mb-2.5'>Featured Image <span className='text-destructive'>*</span></Label>
+            {feat && (
+              <FeaturedImage image={feat} />
+            )}
+            <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' className='hidden' id='featured' required onChange={handleChangeFeat} />
+            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='featured' >Replace Image</Label>
+          </fieldset>
+          {/* END FEATURED IMAGE ================================== */}
+
+          <Textarea label='Description' required placeholder='Enter your description' rows={20} ref={desc} defaultValue={data?.data.desc}/>
+
+          {/* LOGOS IMAGE ========================================= */}
           <fieldset>
             <Label className='block mb-2.5'>
               Logos <span className='text-destructive'>*</span>
             </Label>
 
-            <Reorder.Group axis='y' onReorder={setLogoImages} values={logoImages} className='space-y-2.5 overflow-hidden'>
-              {logoImages.map(logoImage => (
-                <LogoImageCard key={logoImage.id} logoImage={logoImage} logoImages={logoImages} setLogoImages={setLogoImages} />
+            <Reorder.Group axis='y' onReorder={setLogos} values={logos} className='space-y-2.5 overflow-hidden mb-4'>
+              {logos?.map((logoImage, index) => (
+                <div key={index} className='pb-1'>
+                  <LogoImageCard image={logoImage} images={logos} setImage={setLogos} />
+                  <div className='flex items-center flex-1'>
+                    <Input placeholder='Logo Name' defaultValue={logoImage.name} required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...logoImage,
+                        name: (e.target as HTMLInputElement).value
+                      }
+                      const setName = logos?.map((logo) => {
+                        if (logo.id === set.id) return set
+                        return logo
+                      })
+                      setLogos(setName)
+                    }} />
+                    <Input placeholder='Logo Link' type='url' required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...logoImage,
+                        link: (e.target as HTMLInputElement).value
+                      }
+                      const setLink = logos?.map((logo) => {
+                        if (logo.id === set.id) return set
+                        return logo
+                      })
+                      setLogos(setLink)
+                    }} />
+                    <Input placeholder='Logo Order' type='number' required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...logoImage,
+                        order: (e.target as HTMLInputElement).value
+                      }
+                      const setOrder = logos?.map((logo) => {
+                        if (logo.id === set.id) return set
+                        return logo
+                      })
+                      setLogos(setOrder)
+                    }} />
+                  </div>
+                </div>
               ))}
             </Reorder.Group>
-
-            <Button variant='outline' className='mt-5' type='button' onClick={() => inputRef.current?.click()}>
-              Upload Image
-            </Button>
-            <input type='file' ref={inputRef} className='hidden' />
+            
+            <Input type='file' accept='.jpeg,.png,.jpg' onChange={onChangeLogos} id='logos' className='hidden' />
+            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='logos' >Upload Image</Label>
 
             <ul className='text-xs space-y-1 mt-2.5'>
-              <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
+              <li>Format: jpg, jpeg, png</li>
+              <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
+          {/* END LOGOS IMAGE =========================================================== */}
         </fieldset>
-        <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Address' placeholder='Enter address' />
-          <Input label='Phone Number' placeholder='Phone Number' />
-          <Input label='Website' placeholder='Insert link here' />
-          <Input label='Email Address' placeholder='Email address' />
-          <Input label='Social Media Link' placeholder='Enter link' />
-          <fieldset>
-            <Label className='block mb-2.5'>Gallery Carousel</Label>
 
-            <Reorder.Group axis='y' onReorder={setGalleryImages} values={galleryImages} className='space-y-2.5 overflow-hidden'>
-              {galleryImages.map(galleryImage => (
-                <GalleryImageCard key={galleryImage.id} galleryImage={galleryImage} galleryImages={galleryImages} setGalleryImages={setGalleryImages} />
+        <fieldset className='md:space-y-7 space-y-3'>
+          <Input label='Address' required placeholder='Enter address' ref={address} defaultValue={data?.data.address} />
+          <Input label='Phone Number' required placeholder='Phone Number' ref={phone} defaultValue={data?.data.phone_number} />
+          <Input label='Website' required type='url' placeholder='Insert link here' ref={website} defaultValue={data?.data.website}/>
+          <Input label='Email Address' type='email' required placeholder='Email address' ref={email} defaultValue={data?.data.email}/>
+          <Input label='Social Media Link' required placeholder='Enter link' ref={sosmedLink} defaultValue={data?.data.sosmed_link}/>
+
+          {/* GALERY CAROUSEL ================================================ */}
+          <fieldset>
+            <Label className='block mb-2.5'>Gallery Carousel <span className='text-destructive'>*</span></Label>
+
+            <Reorder.Group axis='y' onReorder={setCarousel} values={carousel} className='space-y-2.5 overflow-hidden'>
+              {carousel?.map((carou, index) => (
+                <div key={index} className='pb-1'>
+                  <LogoImageCard key={index} image={carou} images={carousel} setImage={setCarousel} />
+                  <div className='flex items-center flex-1'>
+                    <Input placeholder='Logo Name' defaultValue={carou.name} required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...carou,
+                        name: (e.target as HTMLInputElement).value
+                      }
+                      const setName = carousel?.map((carou) => {
+                        if (carou.id === set.id) return set
+                        return carou
+                      })
+                      setCarousel(setName)
+                    }} />
+                    <Input placeholder='Logo Link' type='url' required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...carou,
+                        link: (e.target as HTMLInputElement).value
+                      }
+                      const setLink = carousel?.map((carou) => {
+                        if (carou.id === set.id) return set
+                        return carou
+                      })
+                      setCarousel(setLink)
+                    }} />
+                    <Input placeholder='Logo Order' type='number' required onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const set = {
+                        ...carou,
+                        order: (e.target as HTMLInputElement).value
+                      }
+                      const setOrder = carousel?.map((carou) => {
+                        if (carou.id === set.id) return set
+                        return carou
+                      })
+                      setCarousel(setOrder)
+                    }} />
+                  </div>
+                </div>
               ))}
             </Reorder.Group>
 
-            <Button variant='outline' className='mt-5' type='button' onClick={() => inputRef.current?.click()}>
-              Upload Image
-            </Button>
-            <input type='file' ref={inputRef} className='hidden' />
+            <Input type='file' accept='.jpeg,.png,.jpg' onChange={onChangeCarousel} id='gallery' className='hidden' />
+            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='gallery' >Upload Image</Label>
 
             <ul className='text-xs space-y-1 mt-2.5'>
-              <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
+              <li>Format: jpg, jpeg, png</li>
+              <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
+          {/* END GALERY CAROUSEL ===================================================== */}
         </fieldset>
         <div className='col-span-2 flex items-center justify-end'>
           <Button size='lg' type='submit'>
@@ -81,81 +273,52 @@ export const AboutPage = () => {
 }
 
 type LogoImageProps = {
-  logoImages: typeof data
-  setLogoImages: (publicationImages: typeof data) => void
-  logoImage: (typeof data)[0]
+  image: ImgProps;
+  images: ImgProps[];
+  setImage: (value: ImgProps[]) => void;
 }
 
-const LogoImageCard = ({ logoImage, logoImages, setLogoImages }: LogoImageProps) => {
+const LogoImageCard = ({ image, images, setImage }: LogoImageProps) => {
   const handleDelete = () => {
-    setLogoImages(logoImages.filter(image => image.id !== logoImage.id))
+    if (images.length <= 1) return;
+    setImage(images.filter(img => img.id !== image.id))
   }
 
   return (
-    <Reorder.Item className='bg-white p-2 rounded-lg border' key={logoImage.id} value={logoImage}>
-      <div className='flex items-center gap-4 flex-1 pointer-events-none'>
-        <button>
+    <Reorder.Item className='bg-white p-2 rounded-lg border flex items-center gap-4 flex-1' key={image?.id} value={image}>
+      <div className='flex items-center gap-4 flex-1'>
+        <button disabled>
           <ChevronsUpDown size={24} />
         </button>
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
-            <img src={logoImage.image} alt='' className='rounded aspect-square object-center object-cover' />
+            <img src={URL.createObjectURL(image.img)} alt='' className='rounded aspect-square object-center object-cover' />
             <p className='text-sm truncate'>
-              {logoImage.name} {logoImage.id}
+              {image.name}
             </p>
           </div>
-          <button onClick={handleDelete}>
-            <Trash size={20} />
-          </button>
         </div>
       </div>
+      <button onClick={handleDelete} className={images.length <= 1 ? "hidden" : ""} disabled={images.length <= 1}>
+        <Trash size={20} />
+      </button>
     </Reorder.Item>
   )
 }
 
-type GalleryImageProps = {
-  galleryImages: typeof data
-  setGalleryImages: (publicationImages: typeof data) => void
-  galleryImage: (typeof data)[0]
-}
-
-const GalleryImageCard = ({ galleryImage, galleryImages, setGalleryImages }: GalleryImageProps) => {
-  const handleDelete = () => {
-    setGalleryImages(galleryImages.filter(image => image.id !== galleryImage.id))
-  }
-
+const FeaturedImage = ({ image }: { image: File }) => {
   return (
-    <Reorder.Item className='bg-white p-2 rounded-lg border' key={galleryImage.id} value={galleryImage}>
-      <div className='flex items-center gap-4 flex-1 pointer-events-none'>
-        <button>
-          <ChevronsUpDown size={24} />
-        </button>
+    <div className='bg-white p-2 rounded-lg border flex items-center gap-4 flex-1'>
+      <div className='flex items-center gap-4 flex-1'>
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
-            <img src={galleryImage.image} alt='' className='rounded aspect-square object-center object-cover' />
-
+            <img src={URL.createObjectURL(image)} alt={image?.name} className='rounded aspect-square object-center object-cover' />
             <p className='text-sm truncate'>
-              {galleryImage.name} {galleryImage.id}
+              {image?.name}
             </p>
           </div>
-          <button onClick={handleDelete}>
-            <Trash size={20} />
-          </button>
         </div>
       </div>
-    </Reorder.Item>
+    </div>
   )
 }
-
-const data = [
-  {
-    id: '0',
-    name: 'Artwork Name',
-    image: 'https://placehold.co/52x52'
-  },
-  {
-    id: '1',
-    name: 'Artwork Name',
-    image: 'https://placehold.co/52x52'
-  }
-]

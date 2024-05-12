@@ -1,63 +1,95 @@
-import { Trash } from 'lucide-react'
-
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { useToast } from '@/components/ui/use-toast'
+import { useRef, useState } from 'react'
+import { ExhibitionDetail } from '@/types/API'
+import { ExhibitionForm } from '.'
+// import { Link } from 'react-router-dom'
 
-export const GeneralTab = () => {
+export const GeneralTab = ({ callback, formInput, data, setIsVisible, isVisible }: { callback: (value: boolean) => void, formInput: (value: ExhibitionForm) => void, data?: ExhibitionDetail, setIsVisible: (value: string) => void, isVisible: string }) => {
+  const { toast } = useToast();
+
+  const [img, setImg] = useState<File | undefined>();
+  const [doc, setDoc] = useState<File | undefined>();
+  const fullname = useRef<HTMLInputElement>(null)
+  const start = useRef<HTMLInputElement>(null)
+  const end = useRef<HTMLInputElement>(null)
+  const orga = useRef<HTMLInputElement>(null)
+  const loc = useRef<HTMLInputElement>(null)
+  const descrip = useRef<HTMLTextAreaElement>(null)
+  const tag = useRef<HTMLInputElement>(null)
+
+  const handleNextTab = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const name = fullname.current?.value;
+    const start_date = start.current?.value;
+    const end_date = end.current?.value;
+    const organizer = orga.current?.value;
+    const location = loc.current?.value;
+    const desc = descrip.current?.value;
+    const tags = tag.current?.value;
+
+    // verify data
+    if (!name || !start_date || !end_date || !organizer || !location || !desc || !isVisible || !tags || !img || !doc) {
+      return toast({
+        variant: "destructive",
+        title: `Please fill out all field`,
+      })
+    }
+
+    formInput({name, tags, start_date, end_date, organizer, location, desc, img, attach_doc: doc, is_visible: isVisible})
+
+    callback(true);
+  };
+
   return (
     <section>
-      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container'>
+      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' onSubmit={handleNextTab}>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Exhibition Name' required placeholder='Enter exhibition name' />
+          <Input label='Exhibition Name' required placeholder='Enter exhibition name' ref={fullname}/>
           <fieldset className='grid grid-cols-2 gap-5'>
-            <Input label='Start Date' type='date' required placeholder='Enter start date' />
-            <Input label='End Date' type='date' required placeholder='Enter end date' />
+            <Input label='Start Date' type='date' required placeholder='Enter start date' ref={start} />
+            <Input label='End Date' type='date' required placeholder='Enter end date' ref={end}/>
           </fieldset>
-          <Input label='Organizer' placeholder='Enter artist or organisation name' required />
-          <Textarea label='Short Description' placeholder='Enter short description that will appear on the main top banner of the artist page' />
+          <Input label='Tags' placeholder='Enter tags' required ref={tag} />
+          <Input label='Organizer' placeholder='Enter artist or organisation name' required ref={orga} />
+          <Input label='Location' placeholder='Enter Location' required ref={loc} />
           <fieldset>
-            <Label className='block mb-2.5'>
-              Featured Image <span className='text-destructive'>*</span>
-            </Label>
-            <div className='bg-white py-3 px-4 rounded border flex items-center justify-between mb-2.5'>
-              <div className='flex items-center gap-4'>
-                <img src='https://placehold.co/52x52' alt='' className='w-14 h-14 aspect-square object-cover object-center rounded' />
-                <p className='text-sm'>Image Name 1</p>
-              </div>
-              <button type='button'>
-                <Trash size={18} />
-              </button>
-            </div>
-            <Button variant='outline' type='button'>
-              Replace Image
-            </Button>
+            <Label>Profile Picture <span className='text-destructive'>*</span></Label>
+            {/* <div className="flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+              <img className="max-h-36 aspect-square object-center object-cover rounded-l-lg" src={data?.img} alt={data?.fullname} />
+            </div> */}
+            <Input type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => {
+              const files = (e.target as HTMLInputElement).files
+              if (files !== null) {
+                setImg(files[0])
+              }
+            }} accept=".jpg,.pdf,.png" />
             <ul className='text-xs space-y-1 mt-2.5'>
-              <li>Pixel size: 400 x 400px (min)</li>
-              <li>Aspect ratio: 1:1 (square)</li>
+              <li>Pixel size: 1440 x 480px (min)</li>
+              <li>Aspect ratio: 27:9 (square)</li>
               <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
+              <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
           <fieldset>
-            <Label className='block mb-2.5'>
-              Attach Document <span className='text-destructive'>*</span>
-            </Label>
-            <div className='bg-white py-3 px-4 rounded border flex items-center justify-between mb-2.5'>
-              <div className='flex items-center gap-4'>
-                <img src='https://placehold.co/52x52' alt='' className='w-14 h-14 aspect-square object-cover object-center rounded' />
-                <p className='text-sm'>Image Name 1</p>
+            <Label>Attach Document <span className='text-destructive'>*</span></Label>
+            {/* <div className="flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+              <div className="flex flex-col justify-between p-4 leading-normal">
+                <Link to={data?.attach_doc}  >attach_dukument.pdf</Link>
               </div>
-              <button type='button'>
-                <Trash size={18} />
-              </button>
-            </div>
-            <Button variant='outline' type='button'>
-              Replace PDF
-            </Button>
+            </div> */}
+            <Input type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => {
+              const files = (e.target as HTMLInputElement).files
+              if (files !== null) {
+                setDoc(files[0])
+              }
+            }} accept='.pdf'/>
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
@@ -66,15 +98,15 @@ export const GeneralTab = () => {
 
           <fieldset>
             <Label className='block mb-2.5'>Visibility</Label>
-            <RadioGroup defaultValue='visible' className='flex items-center'>
+            <RadioGroup className='flex items-center' >
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='visible' id='visible' />
+                <input type="radio" value='1' id='visible' required name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)} defaultChecked={data && data.is_visible == '1'} />
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='hidden' id='hidden' />
+                <input type="radio" value='0' id='hidden' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)} defaultChecked={data && data.is_visible == '0'} />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -82,10 +114,10 @@ export const GeneralTab = () => {
             </RadioGroup>
           </fieldset>
         </fieldset>
-        <Textarea label='Long description' required placeholder='Enter your comprehensive description on the artist' wrapperClassName='flex flex-col' className='flex-1' />
+        <Textarea label='Description' required placeholder='Enter your comprehensive description on the artist' wrapperClassName='flex flex-col' className='flex-1' ref={descrip} />
         <div className='col-span-2 flex items-center justify-end'>
           <Button size='lg' type='submit'>
-            Save
+            Next
           </Button>
         </div>
       </form>

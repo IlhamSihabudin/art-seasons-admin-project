@@ -55,7 +55,17 @@ export const navMenu: NavMenuProps = [
       },
       {
         name: 'Viewing Room',
-        to: '/content-management/viewing-room'
+        to: '/content-management/viewing-room',
+        child: [
+          {
+            name: 'Artwork',
+            to: '/content-management/viewing-room/artwork'
+          },
+          {
+            name: 'Collection',
+            to: '/content-management/viewing-room/collection'
+          },
+        ]
       },
       {
         name: 'News',
@@ -81,11 +91,11 @@ export const navMenu: NavMenuProps = [
     name: 'Orders',
     to: '/orders'
   },
-  {
-    icon: Icon.MessageCircleQuestion,
-    name: 'Enquiries',
-    to: '/enquiries'
-  },
+  // {
+  //   icon: Icon.MessageCircleQuestion,
+  //   name: 'Enquiries',
+  //   to: '/enquiries'
+  // },
   {
     icon: Icon.MessagesSquare,
     name: 'Newsletter',

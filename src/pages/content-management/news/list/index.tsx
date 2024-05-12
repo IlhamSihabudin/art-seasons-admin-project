@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Plus, ListFilter, Search } from 'lucide-react'
 import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -7,23 +7,19 @@ import { Input } from '@/components/ui/input'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { News, columns } from './columns'
+import { columns } from './columns'
+import { News, ResponseApiList } from '@/types/API'
+import { useGet } from '@/hooks/useGet'
 
 export const NewsListPage = () => {
-  const [data, setData] = useState<News[]>([])
+  const { data, isLoading } = useGet<ResponseApiList<News>>('news', '/news?limit=10000')
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
-  useEffect(() => {
-    ; (async () => {
-      const res = await getData()
-      setData(res)
-    })()
-  }, [])
-
   const table = useReactTable({
-    data,
+    data: !isLoading && data.data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -58,9 +54,9 @@ export const NewsListPage = () => {
           <Search size={16} className='absolute top-1/2 -translate-y-1/2 left-2' />
           <Input
             className='bg-white pl-8'
-            placeholder='Search by email'
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)}
+            placeholder='Search by headline'
+            value={(table.getColumn('headline')?.getFilterValue() as string) ?? ''}
+            onChange={event => table.getColumn('headline')?.setFilterValue(event.target.value)}
           />
         </div>
       </div>
@@ -108,17 +104,4 @@ export const NewsListPage = () => {
       </div>
     </section>
   )
-}
-
-async function getData(): Promise<News[]> {
-  return [
-    {
-      id: 'abcdefgh',
-      name: 'Name of Exhibition A',
-      visibility: 'Visible',
-      date: new Date(),
-      author: 'Wiscaksono',
-      category: 'Internal'
-    }
-  ]
 }

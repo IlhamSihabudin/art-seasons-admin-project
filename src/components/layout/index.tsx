@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Header } from './header'
 import { Sidebar } from './sidebar'
 import { BreadCrumb } from './breadcrumb'
+import { Toaster } from '../ui/toaster'
 
 export const Layout = () => {
   return (
@@ -16,6 +17,7 @@ export const Layout = () => {
           <Outlet />
         </ScrollArea>
       </main>
+      <Toaster />
     </section>
   )
 }

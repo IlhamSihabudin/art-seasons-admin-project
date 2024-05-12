@@ -11,8 +11,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { useToast } from '@/components/ui/use-toast';
+import { API } from '@/lib/API';
 
-export const DeleteAction = () => {
+export const DeleteAction = ({ id }: {id: number  }) => {
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    try {
+      await API.delete(`/inventory/artworks/${Number(id)}`);
+      await toast({
+        title: `Success!`,
+        description: "Deleted the data",
+      })
+      window.location.reload(false);
+    } catch (error) {
+      console.log('Error updating artist:', error.message);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: error.response.data.message
+      })
+    }
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -25,7 +47,7 @@ export const DeleteAction = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Delete</AlertDialogAction>
+          <AlertDialogAction onClick={handleSubmit}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

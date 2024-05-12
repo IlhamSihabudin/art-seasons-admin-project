@@ -1,22 +1,13 @@
-import { Link } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { Pencil, ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, Pencil } from 'lucide-react'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { ViewAction } from './actions/view.action'
 import { DeleteAction } from './actions/delete.action'
+import { InventoryArtwork } from '@/types/API'
+import { Link } from 'react-router-dom'
 
-export type Inventory = {
-  id: string
-  name: string
-  artist: string
-  stock: number
-  price: number
-  tags: string[]
-  visibility: Readonly<'Visible' | 'Hidden'>
-}
-
-export const columns: ColumnDef<Inventory>[] = [
+export const columns: ColumnDef<InventoryArtwork>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -42,29 +33,6 @@ export const columns: ColumnDef<Inventory>[] = [
     }
   },
   {
-    accessorKey: 'artist',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Artist
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    }
-  },
-  {
-    accessorKey: 'stock',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Stock
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    },
-    cell: ({ row }) => (row.original.stock === 0 ? <p className='text-destructive'>Out of stock</p> : <p>{row.original.stock}</p>)
-  },
-  {
     accessorKey: 'price',
     header: ({ column }) => {
       return (
@@ -76,18 +44,18 @@ export const columns: ColumnDef<Inventory>[] = [
     }
   },
   {
-    accessorKey: 'tags',
+    accessorKey: 'current_stock',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Tags
+          Stock
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     }
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'is_visible',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -95,16 +63,19 @@ export const columns: ColumnDef<Inventory>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => row.original.is_visible == 1 ? "Visible" : "Hidden"
   },
   {
     accessorKey: '',
     header: 'Actions',
-    cell: () => (
+    cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <ViewAction />
-        <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
-        <DeleteAction />
+        <ViewAction data={row.original} />
+        <Link to={`/inventory/artworks/edit/${row.original.id}`}>
+          <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
+        </Link>
+        <DeleteAction id={row.original.id} />
       </div>
     )
   }

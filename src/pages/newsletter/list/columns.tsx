@@ -1,15 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { Eye, Pencil, Trash, ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown } from 'lucide-react'
 
 import { Checkbox } from '@/components/ui/checkbox'
-
-export type Newsletter = {
-  id: string
-  title: string
-  sendTo: string
-  status: Readonly<'Scheduled' | 'Sent'>
-  createdAt: Date
-}
+import { Newsletter } from '@/types/API'
+import { formatDate } from '@/pages/content-management/exhibitions/list/columns'
+import { ViewAction } from './actions/view.action'
 
 export const columns: ColumnDef<Newsletter>[] = [
   {
@@ -37,18 +32,7 @@ export const columns: ColumnDef<Newsletter>[] = [
     }
   },
   {
-    accessorKey: 'sendTo',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Send to
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    }
-  },
-  {
-    accessorKey: 'status',
+    accessorKey: 'is_for_all',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -56,28 +40,27 @@ export const columns: ColumnDef<Newsletter>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => row.original.is_for_all == 1 ? "For All" : "Not For All"
   },
   {
-    accessorKey: 'Created on',
+    accessorKey: 'created_at',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Created on
+          Created On
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     },
-    cell: ({ row }) => row.original.createdAt.toLocaleDateString()
+    cell: ({ row }) => formatDate(row.original.created_at)
   },
   {
     accessorKey: '',
     header: 'Actions',
-    cell: () => (
+    cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <Eye size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
-        <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
-        <Trash size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
+        <ViewAction data={row.original} />
       </div>
     )
   }

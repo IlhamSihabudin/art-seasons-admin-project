@@ -5,16 +5,9 @@ import { Pencil, ArrowUpDown } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ViewAction } from './actions/view.action'
 import { DeleteAction } from './actions/delete.action'
+import { Publication } from '@/types/API'
 
-export type Publications = {
-  id: string
-  name: string
-  author: string
-  description: string
-  visibility: Readonly<'Visible' | 'Hidden'>
-}
-
-export const columns: ColumnDef<Publications>[] = [
+export const columns: ColumnDef<Publication>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -51,7 +44,7 @@ export const columns: ColumnDef<Publications>[] = [
     }
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -62,7 +55,7 @@ export const columns: ColumnDef<Publications>[] = [
     }
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'is_visible',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -70,18 +63,23 @@ export const columns: ColumnDef<Publications>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => (
+      <p>
+        {row.original.is_visible === 1 ? "visible" : "hidden"}
+      </p>
+    )
   },
   {
     accessorKey: '',
     header: 'Actions',
     cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <ViewAction />
-        <Link to={`/content-management/artists/edit/${row.original.id}`}>
+        <ViewAction data={row.original} />
+        <Link to={`/content-management/publications/edit/${row.original.id}`}>
           <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
         </Link>
-        <DeleteAction />
+        <DeleteAction id={row.original.id} />
       </div>
     )
   }

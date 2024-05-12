@@ -1,115 +1,149 @@
-import { useState, useRef } from 'react'
-import { Reorder } from 'framer-motion'
-import { ChevronsUpDown, Trash, Plus, Minus } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Reorder, useDragControls } from 'framer-motion'
+import { ChevronsUpDown, Trash } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { ArtistsDialog } from '@/components/artist-dialog'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { useToast } from '@/components/ui/use-toast'
+import { useNavigate } from 'react-router-dom'
+
+import { API } from '@/lib/API'
+import { Artist as ArtistType, Collection, ResponseApiList } from '@/types/API'
+import { SelectArtist } from '@/components/select-artist'
+
+interface ArtistDetail extends ArtistType {
+  link: string
+}
 
 export const InventoryArtworksCreatePage = () => {
-  const [publicationImages, setPublicationImages] = useState(data)
-  const [count, setCount] = useState(1)
+  const { toast } = useToast();
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [artists, setArtists] = useState<ArtistDetail[]>([]);
+  const [selectedArtist, setSelectedArtist] = useState<ArtistDetail[]>([]);
+
+  const [img, setImg] = useState<File | undefined>();
+  const [isVisible, setIsVisible] = useState("");
+  const fullname = useRef("")
+  const descrip = useRef("")
+  const tag = useRef("")
+  const pric = useRef("")
+  const stock = useRef("")
+
+  const navigateTo = useNavigate()
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await API.get<ResponseApiList<ArtistDetail>>('/artists?limit=10000')
+        setArtists(response.data);
+      } catch (error) {
+        console.log('Error fetching data:', error.message);
+      }
+    })()
+  }, []);
+
+  const handleSelected = (data: Record<string, boolean>) => {
+    const getSelected = Object.keys(data).map((dt) => {
+      const artisIndex = artists[dt];
+      return artisIndex;
+    })
+
+    setSelectedArtist(getSelected)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const name = fullname.current.value as string;
+    const price = pric.current.value as string;
+    const current_stock = stock.current.value as string;
+    const desc = descrip.current.value as string;
+    const tags = tag.current.value.split(', ') as string[];
+
+    // verify data
+    if (!name || !price || !current_stock || !desc || !isVisible || !tags || !img) {
+      return toast({
+        variant: "destructive",
+        title: `Please fill out all field`,
+      })
+    }
+
+    const formInput: Collection = {name, tags, price, current_stock, desc, img, is_visible: isVisible}
+
+    const body = { ...formInput };
+
+    selectedArtist.forEach((artist, index) => {
+        if (!body.artist_list) {
+            body.artist_list = [];
+        }
+
+        if (!body.artist_list[index]) {
+            body.artist_list[index] = {};
+        }
+
+        body.artist_list[index].artist_id = artist.id;
+        body.artist_list[index].link = artist.link;
+    });
+
+    try {
+      await API.post<Collection, ResponseApi<Collection>>(`/inventory/artworks`, body, {
+        Accept: '*/*',
+        "Content-Type": 'multipart/form-data'
+      });
+      await toast({
+        title: `Success!`,
+        description: "Created data",
+      })
+      navigateTo('/inventory');
+    } catch (error) {
+      console.log('Error updating artist:', error.message);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: error.response.data.message
+      })
+    }
+  };
 
   return (
     <section className='space-y-5'>
       <h1 className='font-bold text-3xl'>Add New Artwork</h1>
       <form className='grid md:grid-cols-2 md:gap-10 gap-5 container'>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Artwork Name' required placeholder='Enter artwork name' />
-          <Textarea label='Description' required placeholder='Enter short description of artwork' />
+          <Input label='Exhibition Name' required placeholder='Enter exhibition name' ref={fullname} />
           <fieldset>
-            <Label className='block mb-2.5'>
-              Artists <span className='text-destructive'>*</span>
-            </Label>
-            <Reorder.Group axis='y' onReorder={setPublicationImages} values={publicationImages} className='space-y-2.5 overflow-hidden'>
-              {publicationImages.map(publicationImage => (
-                <PublicationImageCard
-                  key={publicationImage.id}
-                  publicationImage={publicationImage}
-                  publicationImages={publicationImages}
-                  setPublicationImages={setPublicationImages}
-                />
-              ))}
-            </Reorder.Group>
-          </fieldset>
-          <ArtistsDialog />
-          <fieldset>
-            <Label className='block mb-2.5'>Tags</Label>
-            <div className='flex items-center gap-2'>
-              {['Artists A', 'Artists B', 'Artists C'].map(tag => (
-                <button className='bg-white shadow border rounded-full text-xs py-1 px-4' type='button'>
-                  {tag}
-                </button>
-              ))}
-              <button className='w-4 h-4 grid place-items-center bg-primary rounded-full' type='button'>
-                <Plus size={14} className='text-white' />
-              </button>
-            </div>
-          </fieldset>
-        </fieldset>
-        <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Price' required placeholder='Enter price in SGD' />
-          <fieldset>
-            <Label className='block mb-2.5'>Current Inventory</Label>
-            <div className='flex items-center gap-4'>
-              <button
-                className='border-2 w-6 h-6 border-primary grid place-items-center text-primary'
-                onClick={() => {
-                  if (count > 1) setCount(count - 1)
-                }}
-                type='button'
-              >
-                <Minus size={16} />
-              </button>
-              {count}
-              <button className='border-2 w-6 h-6 border-primary grid place-items-center text-primary' onClick={() => setCount(count + 1)} type='button'>
-                <Plus size={16} />
-              </button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <Label className='block mb-2.5'>
-              Artwork Image <span className='text-destructive'>*</span>
-            </Label>
-
-            <Reorder.Group axis='y' onReorder={setPublicationImages} values={publicationImages} className='space-y-2.5 overflow-hidden'>
-              {publicationImages.map(publicationImage => (
-                <PublicationImageCard
-                  key={publicationImage.id}
-                  publicationImage={publicationImage}
-                  publicationImages={publicationImages}
-                  setPublicationImages={setPublicationImages}
-                />
-              ))}
-            </Reorder.Group>
-
-            <Button variant='outline' className='mt-5' type='button' onClick={() => inputRef.current?.click()}>
-              Upload Image
-            </Button>
-            <input type='file' ref={inputRef} className='hidden' />
-
+            <Input label='Tags' placeholder='Enter tags' required ref={tag}  />
             <ul className='text-xs space-y-1 mt-2.5'>
-              <li>Format: jpg, pdf, png</li>
-              <li>File size: 1MB (max)</li>
-              <li>Resolution: 150-300ppi</li>
+              <li>add a comma to add more than one tag</li>
             </ul>
           </fieldset>
+          <Input label='Price' type='number' placeholder='Enter Price' required ref={pric}  />
+          <Input label='Current Stock' type='number' placeholder='Enter Stock' required ref={stock}  />
+          <fieldset>
+            <Input label='Artwork Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept=".jpg,.pdf,.png" />
+            <ul className='text-xs space-y-1 mt-2.5'>
+              <li>Pixel size: 1440 x 480px (min)</li>
+              <li>Aspect ratio: 27:9 (square)</li>
+              <li>Format: jpg, pdf, png</li>
+              <li>File size: 2MB (max)</li>
+              <li>Resolution: 72ppi (min)</li>
+            </ul>
+          </fieldset>
+
           <fieldset>
             <Label className='block mb-2.5'>Visibility</Label>
-            <RadioGroup defaultValue='visible' className='flex items-center'>
+            <RadioGroup className='flex items-center'>
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='visible' id='visible' />
+                <input type="radio" value='1' id='visible' required name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)}/>
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='hidden' id='hidden' />
+                <input type="radio" value='0' id='hidden' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -117,58 +151,74 @@ export const InventoryArtworksCreatePage = () => {
             </RadioGroup>
           </fieldset>
         </fieldset>
-        <div className='col-span-2 flex items-center justify-end'>
-          <Button size='lg' type='submit'>
-            Save
-          </Button>
-        </div>
+        <Textarea label='Description' required placeholder='Enter your comprehensive description on the artist' wrapperClassName='flex flex-col' className='flex-1' ref={descrip} />
       </form>
+
+      <div className='space-y-2.5'>
+        <Label className='block'>Artist</Label>
+
+        <Reorder.Group axis='y' onReorder={setSelectedArtist} values={selectedArtist} className='space-y-10 overflow-hidden'>
+          {selectedArtist.map(artist => (
+            <Artist key={artist.id} artist={artist} artists={selectedArtist} setArtist={setSelectedArtist} />
+          ))}
+        </Reorder.Group>
+
+        <SelectArtist artists={artists} selectedArtist={handleSelected} />
+      </div>
+
+      <div className='col-span-2 flex items-center justify-end'>
+        <Button size='lg' type='submit' onClick={handleSubmit}>
+          Submit
+        </Button>
+      </div>
     </section>
   )
 }
 
-type PublicationImageProps = {
-  publicationImages: typeof data
-  setPublicationImages: (publicationImages: typeof data) => void
-  publicationImage: (typeof data)[0]
+export type ArtistProps = {
+  artist: ArtistDetail
+  artists: ArtistDetail[]
+  setArtist: (value: ArtistDetail[]) => void
 }
 
-const PublicationImageCard = ({ publicationImage, publicationImages, setPublicationImages }: PublicationImageProps) => {
+const Artist = ({ artist, artists, setArtist }: ArtistProps) => {
+  const dragControls = useDragControls()
+
   const handleDelete = () => {
-    setPublicationImages(publicationImages.filter(image => image.id !== publicationImage.id))
+    if (artists.length >= 1) setArtist(artists.filter(artis => artis.id !== artist.id))
   }
 
   return (
-    <Reorder.Item className='bg-white p-2 rounded-lg border' key={publicationImage.id} value={publicationImage}>
-      <div className='flex items-center gap-4 flex-1 pointer-events-none'>
-        <button>
+    <Reorder.Item className='bg-white p-2 rounded-lg border flex items-center gap-4 flex-1' key={artist.id} value={artist} dragListener={false} dragControls={dragControls}>
+      <div className='flex items-center gap-4 flex-1'>
+        <button onPointerDown={event => dragControls.start(event)}>
           <ChevronsUpDown size={24} />
         </button>
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
-            <img src={publicationImage.image} alt='' className='rounded aspect-square object-center object-cover' />
-            <p className='text-sm truncate'>
-              {publicationImage.name} {publicationImage.id}
-            </p>
+            <img src={artist.profile_picture} alt={artist?.fullname} className='w-14 h-14 rounded aspect-square object-center object-cover' />
+            <div className='w-full space-y-2'>
+              <p className='text-sm truncate'>
+                {artist.fullname}
+              </p>
+              <Input placeholder={`Insert artist's external website`}  className='max-w-full' type='url' required onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                const set = {
+                  ...artist,
+                  link: e.target.value as string
+                }
+                const setLink = artists?.map((artis) => {
+                  if (artis.id === set.id) return set
+                  return artis
+                })
+                setArtist(setLink)
+              }} />
+            </div>
           </div>
-          <button onClick={handleDelete}>
-            <Trash size={20} />
-          </button>
         </div>
       </div>
+      <button onClick={handleDelete}>
+        <Trash size={20} />
+      </button>
     </Reorder.Item>
   )
 }
-
-const data = [
-  {
-    id: '0',
-    name: 'Artwork Name',
-    image: 'https://placehold.co/52x52'
-  },
-  {
-    id: '1',
-    name: 'Artwork Name',
-    image: 'https://placehold.co/52x52'
-  }
-]

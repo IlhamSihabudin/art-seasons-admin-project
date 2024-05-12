@@ -1,53 +1,43 @@
-import { ErrorRes } from '@/types/API'
+// import { ErrorRes } from '@/types/API'
+import axiosInstance from '@/utils/axiosInstance';
+import { AxiosRequestConfig } from 'axios'
+import Cookies from 'js-cookie'
 
-const BASE_API_URL = 'https://dummyjson.com'
+// export const LOGOUT_REDIRECT = "/";
+export const LOGOUT_REDIRECT = "https://artseasons.my.id/";
+
+interface ReqeustHeaders {
+  Accept: 'text/html' | 'text/plain' | 'multipart/form-data' | 'application/json' | 'application/x-www-form-urlencoded' | 'application/octet-stream';
+  "Content-Type": 'text/html' | 'text/plain' | 'multipart/form-data' | 'application/json' | 'application/x-www-form-urlencoded' | 'application/octet-stream';
+}
 
 class api {
-  private token: string | undefined
+  private accessToken: string | undefined
 
   constructor() {
-    this.token = localStorage.getItem('token') || ''
+    this.accessToken = Cookies.get('access-token-admin')
   }
 
-  setToken(token: string) {
-    this.token = token
-    localStorage.setItem('token', token)
-  }
-
-  resetToken() {
-    this.token = ''
-    localStorage.removeItem('token')
-  }
-
-  async request(path: string, options?: RequestInit) {
-    const requestOptions: RequestInit = {
-      mode: 'cors',
-      credentials: 'include',
+  async request(path: string, options?: AxiosRequestConfig, headers?: ReqeustHeaders) {
+    const requestOptions = {
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.token}`
+        ...headers,
+        'Authorization': `Bearer ${this.accessToken}`
       },
       ...options
     }
 
     try {
-      const response = await fetch(BASE_API_URL + path, requestOptions)
+      // const response = await axios({
+      //   url: BASE_API_URL + path,
+      //   ...requestOptions
+      // })
+      const response = await axiosInstance({
+        url: path,
+        ...requestOptions
+      })
 
-      if (!response.ok) {
-        const error = (await response.json()) as ErrorRes
-        if (response.status === 401) {
-          localStorage.removeItem('user-state')
-          window.location.reload()
-        }
-        return Promise.reject(error)
-      }
-
-      if (typeof options?.body === 'string' && options.method === 'POST' && JSON.parse(options.body).FOR_DOCUMENT) {
-        return await response.arrayBuffer()
-      }
-
-      const res = await response.json()
+      const res = await response.data;
 
       if (res.error === true) {
         return Promise.reject(res)
@@ -64,8 +54,11 @@ class api {
     }
   }
 
-  get<R>(path: string): Promise<R> {
-    return this.request(path)
+  get<R>(path: string, options?: AxiosRequestConfig, headers?: ReqeustHeaders): Promise<R> {
+    return this.request(path, {
+      method: 'GET',
+      ...options
+    }, headers);
   }
 
   delete(path: string) {
@@ -74,11 +67,11 @@ class api {
     })
   }
 
-  post<P, R = undefined>(path: string, body: P): Promise<R> {
+  post<P, R = undefined>(path: string, body: P, headers?: ReqeustHeaders): Promise<R> {
     return this.request(path, {
       method: 'POST',
-      body: JSON.stringify(body as P)
-    })
+      data: body as P
+    }, headers)
   }
 }
 

@@ -2,30 +2,129 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { useToast } from '@/components/ui/use-toast'
+import { useEffect, useRef, useState } from 'react'
+import { Event, ResponseApi } from '@/types/API'
+import { API } from '@/lib/API'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AxiosError } from 'axios'
 
 export const EventsEditPage = () => {
+  const { toast } = useToast();
+  const [data, setData] = useState<Event>();
+
+  const [profile, setProfile] = useState<File | undefined>();
+  const [doc, setDoc] = useState<File | undefined>();
+  const [isVisible, setIsVisible] = useState<string>("");
+  const fullname = useRef<HTMLInputElement>(null)
+  const website = useRef<HTMLInputElement>(null)
+  const start_date = useRef<HTMLInputElement>(null)
+  const end_date = useRef<HTMLInputElement>(null)
+  const desc = useRef<HTMLTextAreaElement>(null)
+  const location = useRef<HTMLInputElement>(null)
+  const organized = useRef<HTMLInputElement>(null)
+
+  const params = useParams()
+  const navigateTo = useNavigate()
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const response = await API.get<ResponseApi<Event>>(`/events/${Number(params.id)}`, {
+          signal: controller.signal
+        }, {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        })
+        isMounted && setData(response.data);
+        setIsVisible(response.data.is_visible.toString());
+      } catch (error) {
+        let errorMessage = "Error fetching data";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        console.log('Error fetching data:', errorMessage);
+      }
+    })()
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    }
+  }, [params.id])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formInput = { 
+      _method: "PUT",
+      name: fullname.current?.value, 
+      start_date: start_date.current?.value, 
+      end_date: end_date.current?.value, 
+      website: website.current?.value, 
+      attach_doc: doc, 
+      is_visible: isVisible, 
+      location: location.current?.value, 
+      img: profile,
+      desc: desc.current?.value,
+      organizer: organized.current?.value,
+    }
+
+    try {
+      await API.post<typeof formInput, ResponseApi<Event>>(`/events/${Number(params.id)}`, formInput, {
+        Accept: 'multipart/form-data',
+        "Content-Type": 'multipart/form-data'
+      });
+      await toast({
+        title: `Success!`,
+        description: "Created data",
+      })
+      navigateTo('/content-management/events');
+    } catch (error) {
+      const err = error as AxiosError;
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: (err.response?.data as AxiosError).message
+      })
+    }
+  };
+
   return (
     <section className='space-y-5'>
       <h1 className='font-bold text-3xl'>Edit Event</h1>
-      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container'>
+      <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' encType='multipart/form-data' onSubmit={handleSubmit}>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Full Name' required placeholder='Enter full name' />
-          <Input label='Tag' required placeholder='Enter tag name' />
-          <Input label='Birth Year' placeholder='Enter birth year' />
-          <Textarea label='Short Description' placeholder='Enter short description that will appear on the main top banner of the artist page' />
+          <Input label='Full Name' required placeholder='Enter full name' ref={fullname} defaultValue={data?.name} />
+          <Input label='Start Date' type='date' required placeholder='Enter start date' ref={start_date} defaultValue={data?.start_date}/>
+          <Input label='End Date' type='date' placeholder='Enter end date' ref={end_date} defaultValue={data?.end_date} />
+          <Input label='Organizer' placeholder='Enter organized' ref={organized} defaultValue={data?.organizer}/>
+          <Input label='Location' placeholder='Enter location' ref={location} defaultValue={data?.location}/>
+          <Input label='Website' placeholder='Enter website' ref={website} defaultValue={data?.website}/>
           <fieldset>
-            <Input label='Profile Picture' type='file' required />
+            <Input label='Profile Picture' type='file' accept='.jpg,.jpeg,.png' required onChange={(e: React.FormEvent<HTMLInputElement>) => {
+              const files = (e.target as HTMLInputElement).files
+              if (files !== null) {
+                setProfile(files[0])
+              }
+            }} />
             <ul className='text-xs space-y-1 mt-2'>
-              <li>Pixel size: 400 x 400px (min)</li>
-              <li>Aspect ratio: 1:1 (square)</li>
+              <li>Pixel size: 400 x 300px (min)</li>
+              <li>Aspect ratio: 4:3 (square)</li>
               <li>Format: jpg, pdf, png</li>
               <li>File size: 500KB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
           <fieldset>
-            <Input label='Attach Document' type='file' required />
+            <Input label='Attach Document' type='file' accept='.pdf' required onChange={(e: React.FormEvent<HTMLInputElement>) => {
+              const files = (e.target as HTMLInputElement).files
+              if (files !== null) {
+                setDoc(files[0])
+              }
+            }} />
             <ul className='text-xs space-y-1 mt-2'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
@@ -34,15 +133,15 @@ export const EventsEditPage = () => {
 
           <fieldset>
             <Label className='block mb-2.5'>Visibility</Label>
-            <RadioGroup defaultValue='visible' className='flex items-center'>
+            <RadioGroup className='flex items-center'>
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='visible' id='visible' />
+                <input type="radio" value='1' id='visible' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)} defaultChecked={data && data.is_visible == '1'} />
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='hidden' id='hidden' />
+                <input type="radio" value='0' id='hidden' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)} defaultChecked={data && data.is_visible == '0'} />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -50,7 +149,7 @@ export const EventsEditPage = () => {
             </RadioGroup>
           </fieldset>
         </fieldset>
-        <Textarea label='Long description' required placeholder='Enter your comprehensive description on the artist' className='h-full' />
+        <Textarea label='Description' required placeholder='Enter your comprehensive description' wrapperClassName='h-full' className='h-full'  ref={desc} defaultValue={data?.desc}/>
         <div className='col-span-2 flex items-center justify-end'>
           <Button size='lg' type='submit'>
             Save

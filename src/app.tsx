@@ -3,8 +3,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from './components/layout'
 
 import { DashboardPage } from './pages/dashboard'
-import { UserAdminPage } from './pages/user/admin'
-import { UserCustomerPage } from './pages/user/customer'
+
+import { UserAdminPage } from './pages/user/admin/list'
+import { UserEditPage } from './pages/user/admin/edit'
+import { UserCreatePage } from './pages/user/admin/create'
+
+import { UserCustomerPage } from './pages/user/customer/list'
+import { CustomerEditPage } from './pages/user/customer/edit'
+import { CustomerCreatePage } from './pages/user/customer/create'
+
 import { OrdersPage } from './pages/orders'
 
 import { HomePage } from './pages/content-management/home/page'
@@ -25,9 +32,13 @@ import { EventsListPage } from './pages/content-management/events/list'
 import { EventsCreatePage } from './pages/content-management/events/create'
 import { EventsEditPage } from './pages/content-management/events/edit'
 
-import { ViewingRoomListPage } from './pages/content-management/viewing-room/list'
-import { ViewingRoomCreatePage } from './pages/content-management/viewing-room/create'
-import { ViewingRoomEditPage } from './pages/content-management/viewing-room/edit'
+import { ViewingRoomListPage } from './pages/content-management/viewing-room/artwork/list'
+import { ViewingRoomCreatePage } from './pages/content-management/viewing-room/artwork/create'
+// import { ViewingRoomEditPage } from './pages/content-management/viewing-room/artwork/edit'
+
+import { ViewingRoomListPage as CollectionRoomListPage } from './pages/content-management/viewing-room/collection/list'
+import { ViewingRoomCreatePage as CollectionRoomCreatePage } from './pages/content-management/viewing-room/collection/create'
+import { ViewingRoomEditPage as CollectionRoomEditPage } from './pages/content-management/viewing-room/collection/edit'
 
 import { NewsListPage } from './pages/content-management/news/list'
 import { NewsCreatePage } from './pages/content-management/news/create'
@@ -50,71 +61,91 @@ import { NewsletterCreatePage } from './pages/newsletter/create'
 
 import { SettingsPage } from './pages/settings'
 import { NotFoundPage } from './pages/not-found'
+import { InventoryArtworksEditPage } from './pages/inventory/artworks/edit'
+import { InventoryPublicationsEditPage } from './pages/inventory/publicatios/edit'
+import { InventoryPublicationCreatePage } from './pages/inventory/publicatios/create'
+import { AuthProvider } from './context/AuthContext'
 
 export const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path='/' element={<DashboardPage />} />
+      <AuthProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path='/' element={<DashboardPage />} />
 
-          <Route path='/users/admin' Component={UserAdminPage} />
-          <Route path='/users/customer' Component={UserCustomerPage} />
+            <Route path='/users/admin' Component={UserAdminPage} />
+            <Route path='/users/admin/create' Component={UserCreatePage} />
+            <Route path='/users/admin/edit/:role/:id' Component={UserEditPage} />
+            
+            <Route path='/users/customer' Component={UserCustomerPage} />
+            <Route path='/users/customer/create' Component={CustomerCreatePage} />
+            <Route path='/users/customer/edit/:id' Component={CustomerEditPage} />
 
-          <Route path='/orders' Component={OrdersPage} />
+            <Route path='/orders' Component={OrdersPage} />
 
-          <Route path='/inventory' Component={InventoryPage} />
-          <Route path='/inventory/artworks/create' Component={InventoryArtworksCreatePage} />
+            <Route path='/inventory' Component={InventoryPage} />
+            <Route path='/inventory/artworks/create' Component={InventoryArtworksCreatePage} />
+            <Route path='/inventory/artworks/edit/:id' Component={InventoryArtworksEditPage} />
 
-          <Route path='/content-management/home' Component={HomePage} />
+            <Route path='/inventory/publications/create' Component={InventoryPublicationCreatePage} />
+            <Route path='/inventory/publications/edit/:id' Component={InventoryPublicationsEditPage} />
 
-          {/* Artists */}
-          <Route path='/content-management/artists' Component={ArtistsListPage} />
-          <Route path='/content-management/artists/create' Component={ArtistsCreatePage} />
-          <Route path='/content-management/artists/edit/:id' Component={ArtistsEditPage} />
+            <Route path='/content-management/home' Component={HomePage} />
 
-          {/* Exhibitions */}
-          <Route path='/content-management/exhibitions' Component={ExhibitionsPage} />
-          <Route path='/content-management/exhibitions/create' Component={ExhibitionsCreatePage} />
-          <Route path='/content-management/exhibitions/edit/:id' Component={ExhibitionsEditPage} />
+            {/* Artists */}
+            <Route path='/content-management/artists' Component={ArtistsListPage} />
+            <Route path='/content-management/artists/create' Component={ArtistsCreatePage} />
+            <Route path='/content-management/artists/edit/:id' Component={ArtistsEditPage} />
 
-          {/* Art Fairs */}
-          <Route path='/content-management/art-fairs' Component={ArtFairsListPage} />
-          <Route path='/content-management/art-fairs/create' Component={ArtFairsCreatePage} />
-          <Route path='/content-management/art-fairs/edit/:id' Component={ArtFairsEditPage} />
+            {/* Exhibitions */}
+            <Route path='/content-management/exhibitions' Component={ExhibitionsPage} />
+            <Route path='/content-management/exhibitions/create' Component={ExhibitionsCreatePage} />
+            <Route path='/content-management/exhibitions/edit/:id' Component={ExhibitionsEditPage} />
 
-          {/* Events */}
-          <Route path='/content-management/events' Component={EventsListPage} />
-          <Route path='/content-management/events/create' Component={EventsCreatePage} />
-          <Route path='/content-management/events/edit/:id' Component={EventsEditPage} />
+            {/* Art Fairs */}
+            <Route path='/content-management/art-fairs' Component={ArtFairsListPage} />
+            <Route path='/content-management/art-fairs/create' Component={ArtFairsCreatePage} />
+            <Route path='/content-management/art-fairs/edit/:id' Component={ArtFairsEditPage} />
 
-          {/* Viewing-room */}
-          <Route path='/content-management/viewing-room' Component={ViewingRoomListPage} />
-          <Route path='/content-management/viewing-room/create' Component={ViewingRoomCreatePage} />
-          <Route path='/content-management/viewing-room/edit/:id' Component={ViewingRoomEditPage} />
+            {/* Events */}
+            <Route path='/content-management/events' Component={EventsListPage} />
+            <Route path='/content-management/events/create' Component={EventsCreatePage} />
+            <Route path='/content-management/events/edit/:id' Component={EventsEditPage} />
 
-          {/* News */}
-          <Route path='/content-management/news' Component={NewsListPage} />
-          <Route path='/content-management/news/create' Component={NewsCreatePage} />
-          <Route path='/content-management/news/edit/:id' Component={NewsEditPage} />
+            {/* Viewing-room artwork*/}
+            <Route path='/content-management/viewing-room/artwork' Component={ViewingRoomListPage} />
+            <Route path='/content-management/viewing-room/artwork/create' Component={ViewingRoomCreatePage} />
+            {/* <Route path='/content-management/viewing-room/artwork/edit/:id' Component={ViewingRoomEditPage} /> */}
 
-          {/* Publications */}
-          <Route path='/content-management/publications' Component={PublicationsListPage} />
-          <Route path='/content-management/publications/create' Component={PublicationsCreatePage} />
-          <Route path='/content-management/publications/edit/:id' Component={PublicationsEditPage} />
+            {/* Viewing-room collection*/}
+            <Route path='/content-management/viewing-room/collection' Component={CollectionRoomListPage} />
+            <Route path='/content-management/viewing-room/collection/create' Component={CollectionRoomCreatePage} />
+            <Route path='/content-management/viewing-room/collection/edit/:id' Component={CollectionRoomEditPage} />
 
-          <Route path='/content-management/about' Component={AboutPage} />
+            {/* News */}
+            <Route path='/content-management/news' Component={NewsListPage} />
+            <Route path='/content-management/news/create' Component={NewsCreatePage} />
+            <Route path='/content-management/news/edit/:id' Component={NewsEditPage} />
 
-          <Route path='/enquiries' Component={EnquiriesListPage} />
-          <Route path='/enquiries/:id' Component={EnquiriesReplyPage} />
+            {/* Publications */}
+            <Route path='/content-management/publications' Component={PublicationsListPage} />
+            <Route path='/content-management/publications/create' Component={PublicationsCreatePage} />
+            <Route path='/content-management/publications/edit/:id' Component={PublicationsEditPage} />
 
-          <Route path='/newsletter' Component={NewsletterListPage} />
-          <Route path='/newsletter/create' Component={NewsletterCreatePage} />
+            <Route path='/content-management/about' Component={AboutPage} />
 
-          <Route path='/settings' Component={SettingsPage} />
-        </Route>
-        <Route path='*' Component={NotFoundPage} />
-      </Routes>
+            <Route path='/enquiries' Component={EnquiriesListPage} />
+            <Route path='/enquiries/:id' Component={EnquiriesReplyPage} />
+
+            <Route path='/newsletter' Component={NewsletterListPage} />
+            <Route path='/newsletter/create' Component={NewsletterCreatePage} />
+
+            <Route path='/settings' Component={SettingsPage} />
+          </Route>
+          <Route path='*' Component={NotFoundPage} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

@@ -2,16 +2,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 
 import { Checkbox } from '@/components/ui/checkbox'
+import { Artwork } from '@/types/API'
 
-export type Artists = {
-  id: string
-  artworkName: string
-  artistName: string
-  description: string
-  tags: string[]
-}
-
-export const columns: ColumnDef<Artists>[] = [
+export const columns: ColumnDef<Artwork>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -26,7 +19,7 @@ export const columns: ColumnDef<Artists>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'artworkName',
+    accessorKey: 'name',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -37,18 +30,7 @@ export const columns: ColumnDef<Artists>[] = [
     }
   },
   {
-    accessorKey: 'artistName',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Artist Name
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    }
-  },
-  {
-    accessorKey: 'description',
+    accessorKey: 'desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>

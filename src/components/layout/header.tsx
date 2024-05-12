@@ -1,8 +1,8 @@
-import { MagnifyingGlassIcon, BellIcon } from '@radix-ui/react-icons'
+// import { MagnifyingGlassIcon, BellIcon } from '@radix-ui/react-icons'
 
-import { Input } from '@/components/ui/input'
+// import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export const Header = () => {
   return (
@@ -15,12 +15,12 @@ export const Header = () => {
         <p className='font-medium'>Admin</p>
       </div>
 
-      <div className='flex-1 relative'>
+      {/* <div className='flex-1 relative'>
         <MagnifyingGlassIcon className='w-5 h-5 absolute top-1/2 -translate-y-1/2 left-2' />
         <Input className='pl-10' placeholder='Quick search' />
-      </div>
+      </div> */}
 
-      <Popover>
+      {/* <Popover>
         <PopoverTrigger>
           <BellIcon className='w-5 h-5 text-muted-foreground' />
         </PopoverTrigger>
@@ -28,7 +28,7 @@ export const Header = () => {
           Lorem ipsum dolor sit amet consectetur, adipisicing elit. Reiciendis fugit quidem ipsum totam dignissimos impedit officia distinctio! Laborum, cupiditate soluta in earum,
           iusto id ipsum adipisci necessitatibus, modi aliquam praesentium?
         </PopoverContent>
-      </Popover>
+      </Popover> */}
     </header>
   )
 }

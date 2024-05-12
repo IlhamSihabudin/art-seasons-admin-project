@@ -5,15 +5,7 @@ import { Pencil, ArrowUpDown } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ViewAction } from './actions/view.action'
 import { DeleteAction } from './actions/delete.action'
-
-export type News = {
-  id: string
-  name: string
-  date: Date
-  category: Readonly<'Internal' | 'External'>
-  author: string
-  visibility: Readonly<'Visible' | 'Hidden'>
-}
+import { News } from '@/types/API'
 
 export const columns: ColumnDef<News>[] = [
   {
@@ -30,7 +22,7 @@ export const columns: ColumnDef<News>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'headline',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -50,7 +42,6 @@ export const columns: ColumnDef<News>[] = [
         </p>
       )
     },
-    cell: ({ row }) => row.original.date.toLocaleDateString()
   },
   {
     accessorKey: 'category',
@@ -75,7 +66,7 @@ export const columns: ColumnDef<News>[] = [
     }
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'is_visible',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -83,18 +74,19 @@ export const columns: ColumnDef<News>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => row.original.is_visible === 1 ? "Visible" : "Hidden"
   },
   {
     accessorKey: '',
     header: 'Actions',
     cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <ViewAction />
+        <ViewAction data={row.original} />
         <Link to={`/content-management/news/edit/${row.original.id}`}>
           <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
         </Link>
-        <DeleteAction />
+        <DeleteAction id={row.original.id} />
       </div>
     )
   }

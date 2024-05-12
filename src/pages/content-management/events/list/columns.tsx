@@ -5,17 +5,10 @@ import { Pencil, ArrowUpDown } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ViewAction } from './actions/view.action'
 import { DeleteAction } from './actions/delete.action'
+import { formatDate } from '../../exhibitions/list/columns'
+import { Event } from '@/types/API'
 
-export type Events = {
-  id: string
-  name: string
-  date: Date
-  organizer: string
-  location: string
-  visibility: Readonly<'Visible' | 'Hidden'>
-}
-
-export const columns: ColumnDef<Events>[] = [
+export const columns: ColumnDef<Event>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -41,16 +34,36 @@ export const columns: ColumnDef<Events>[] = [
     }
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'start_date',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Date
+          Start Date
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     },
-    cell: ({ row }) => row.original.date.toLocaleDateString()
+    cell: ({ row }) => (
+      <p>
+        {formatDate(row.original.start_date)}
+      </p>
+    )
+  },
+  {
+    accessorKey: 'end_date',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Start Date
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    },
+    cell: ({ row }) => (
+      <p>
+        {formatDate(row.original.end_date)}
+      </p>
+    )
   },
   {
     accessorKey: 'organizer',
@@ -75,7 +88,7 @@ export const columns: ColumnDef<Events>[] = [
     }
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'is_visible',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -83,18 +96,23 @@ export const columns: ColumnDef<Events>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => (
+      <p>
+        {row.original.is_visible === 1 ? "visible" : "hidden"}
+      </p>
+    )
   },
   {
     accessorKey: '',
     header: 'Actions',
     cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <ViewAction />
+        <ViewAction data={row.original} />
         <Link to={`/content-management/events/edit/${row.original.id}`}>
           <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
         </Link>
-        <DeleteAction />
+        <DeleteAction id={row.original.id} />
       </div>
     )
   }

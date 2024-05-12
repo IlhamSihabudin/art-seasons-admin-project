@@ -11,8 +11,31 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { useToast } from '@/components/ui/use-toast';
+import { API } from '@/lib/API';
+import { AxiosError } from 'axios';
 
-export const DeleteAction = () => {
+export const DeleteAction = ({ id }: { id: number }) => {
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    try {
+      await API.delete(`/events/${Number(id)}`);
+      await toast({
+        title: `Success!`,
+        description: "Deleted the data",
+      })
+      window.location.reload();
+    } catch (error) {
+      const err = error as AxiosError;
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: (err.response?.data as AxiosError).message
+      })
+    }
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -25,7 +48,7 @@ export const DeleteAction = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Delete</AlertDialogAction>
+          <AlertDialogAction onClick={handleSubmit}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

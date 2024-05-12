@@ -5,20 +5,9 @@ import { Pencil, ArrowUpDown } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ViewAction } from './actions/view.action'
 import { DeleteAction } from './actions/delete.action'
+import { Artist } from '@/types/API'
 
-export type Artists = {
-  id: string
-  name: string
-  tag: string
-  description: string
-  visibility: Readonly<'Visible' | 'Hidden'>
-  cv: {
-    name: string
-    url: string
-  }
-}
-
-export const columns: ColumnDef<Artists>[] = [
+export const columns: ColumnDef<Artist>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -33,7 +22,7 @@ export const columns: ColumnDef<Artists>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'fullname',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -44,7 +33,7 @@ export const columns: ColumnDef<Artists>[] = [
     }
   },
   {
-    accessorKey: 'tag',
+    accessorKey: 'tags',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -55,7 +44,7 @@ export const columns: ColumnDef<Artists>[] = [
     }
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'short_desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -66,7 +55,7 @@ export const columns: ColumnDef<Artists>[] = [
     }
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'is_visible',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -74,10 +63,15 @@ export const columns: ColumnDef<Artists>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => (
+      <p>
+        {row.original.is_visible === 1 ? "visible" : "hidden"}
+      </p>
+    )
   },
   {
-    accessorKey: 'cv',
+    accessorKey: 'attach_doc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -87,8 +81,8 @@ export const columns: ColumnDef<Artists>[] = [
       )
     },
     cell: ({ row }) => (
-      <a href={row.original.cv.url} target='_blank' className='underline'>
-        {row.original.cv.name}
+      <a href={row.original.attach_doc} target='_blank' className='underline'>
+        {row.original.fullname}
       </a>
     )
   },
@@ -97,11 +91,11 @@ export const columns: ColumnDef<Artists>[] = [
     header: 'Actions',
     cell: ({ row }) => (
       <div className='flex items-center gap-2.5'>
-        <ViewAction />
+        <ViewAction data={row.original} />
         <Link to={`/content-management/artists/edit/${row.original.id}`}>
           <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
         </Link>
-        <DeleteAction />
+        <DeleteAction id={row.original.id} />
       </div>
     )
   }

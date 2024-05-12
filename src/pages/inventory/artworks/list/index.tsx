@@ -1,26 +1,19 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { Plus, ListFilter, Search } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Search } from 'lucide-react'
 import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { Inventory, columns } from './columns'
+import { columns } from './columns'
+import { InventoryArtwork } from '@/types/API'
 
-export const ArtworksTab = () => {
-  const [data, setData] = useState<Inventory[]>([])
+export const ArtworksTab = ({ data }: { data: InventoryArtwork[] }) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
-
-  useEffect(() => {
-    ; (async () => {
-      const res = await getData()
-      setData(res)
-    })()
-  }, [])
 
   const table = useReactTable({
     data,
@@ -42,18 +35,10 @@ export const ArtworksTab = () => {
   return (
     <section className='space-y-5'>
       <div className='flex items-center gap-3'>
-        <Button variant='outline' className='gap-2'>
-          <ListFilter size={16} />
-          Filters
-        </Button>
         <Link to='/inventory/artworks/create' className={`${buttonVariants()} gap-2`}>
           <Plus size={16} />
           Add New
         </Link>
-        <Button className='gap-2'>
-          <Plus size={16} />
-          Tag
-        </Button>
         <div className='text-sm font-medium flex-1'>
           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -61,7 +46,7 @@ export const ArtworksTab = () => {
           <Search size={16} className='absolute top-1/2 -translate-y-1/2 left-2' />
           <Input
             className='bg-white pl-8'
-            placeholder='Search by email'
+            placeholder='Search by name'
             value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
             onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)}
           />
@@ -111,27 +96,4 @@ export const ArtworksTab = () => {
       </div>
     </section>
   )
-}
-
-async function getData(): Promise<Inventory[]> {
-  return [
-    {
-      id: '728ed52f',
-      name: 'Name of Artworks',
-      artist: 'Wiscaksono',
-      visibility: 'Visible',
-      tags: ['A-emilychen, A-artistname'],
-      price: 2500,
-      stock: 1
-    },
-    {
-      id: '7282452f',
-      name: 'Name of Artworks',
-      artist: 'Wiscaksono',
-      visibility: 'Visible',
-      tags: ['A-emilychen, A-artistname'],
-      price: 2500,
-      stock: 0
-    }
-  ]
 }

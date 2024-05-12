@@ -1,28 +1,24 @@
-import { useEffect, useState } from 'react'
-import { Plus, ListFilter, Search } from 'lucide-react'
+import { useState } from 'react'
+import { ListFilter, Search } from 'lucide-react'
 import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { Orders, columns } from './columns'
+import { columns } from './columns'
+import { Order, ResponseApiList } from '@/types/API'
+import { useGet } from '@/hooks/useGet'
 
 export const OrdersPage = () => {
-  const [data, setData] = useState<Orders[]>([])
+  const { data, isLoading } = useGet<ResponseApiList<Order>>('orders', '/orders?limit=10000')
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
-  useEffect(() => {
-    ; (async () => {
-      const res = await getData()
-      setData(res)
-    })()
-  }, [])
-
   const table = useReactTable({
-    data,
+    data: !isLoading && data.data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -46,10 +42,6 @@ export const OrdersPage = () => {
           <ListFilter size={16} />
           Filters
         </Button>
-        <Button className='gap-2'>
-          <Plus size={16} />
-          Add User
-        </Button>
         <div className='text-sm font-medium flex-1'>
           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -57,9 +49,9 @@ export const OrdersPage = () => {
           <Search size={16} className='absolute top-1/2 -translate-y-1/2 left-2' />
           <Input
             className='bg-white pl-8'
-            placeholder='Search by email'
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)}
+            placeholder='Search by customer name'
+            value={(table.getColumn('user_name')?.getFilterValue() as string) ?? ''}
+            onChange={event => table.getColumn('user_name')?.setFilterValue(event.target.value)}
           />
         </div>
       </div>
@@ -107,25 +99,4 @@ export const OrdersPage = () => {
       </div>
     </section>
   )
-}
-
-async function getData(): Promise<Orders[]> {
-  return [
-    {
-      id: 'ENQ-001',
-      name: 'Name of Customer A',
-      item: 'Name of Artwork A',
-      price: 2500,
-      payment: 'Visa',
-      status: 'Delivered'
-    },
-    {
-      id: 'ENQ-002',
-      name: 'Name of Customer B',
-      item: 'Name of Artwork B',
-      price: 2500,
-      payment: 'Visa',
-      status: 'Delivered'
-    }
-  ]
 }
