@@ -7,25 +7,25 @@ import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup } from '@/components/ui/radio-group'
 import { useToast } from '@/components/ui/use-toast'
 import { useNavigate } from 'react-router-dom'
-import { Publication } from '@/types/API'
+import { Publication, ResponseApi } from '@/types/API'
 import { API } from '@/lib/API'
 
 export const InventoryPublicationCreatePage = () => {
-  const { toast } = useToast();
+  const { toast } = useToast()
 
-  const [img, setImg] = useState<File | undefined>();
-  const [isVisible, setIsVisible] = useState("");
-  const fullname = useRef("")
-  const descrip = useRef("")
-  const author = useRef("")
-  const pric = useRef("")
-  const stock = useRef("")
+  const [img, setImg] = useState<File | undefined>()
+  const [isVisible, setIsVisible] = useState(1)
+  const fullname = useRef('')
+  const descrip = useRef('')
+  const author = useRef('')
+  const pric = useRef('')
+  const stock = useRef('')
 
   const navigateTo = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formInput: Publication = { 
+    e.preventDefault()
+    const formInput: Publication = {
       img,
       is_visible: isVisible,
       name: fullname.current.value,
@@ -38,54 +38,45 @@ export const InventoryPublicationCreatePage = () => {
     try {
       await API.post<Publication, ResponseApi<Publication>>(`/inventory/publications`, formInput, {
         Accept: '*/*',
-        "Content-Type": 'multipart/form-data'
-      });
+        'Content-Type': 'multipart/form-data'
+      })
       await toast({
         title: `Success!`,
-        description: "Created data",
+        description: 'Created data'
       })
-      navigateTo('/inventory');
+      navigateTo('/inventory')
     } catch (error) {
-      console.log('Error updating artist:', error.message);
+      console.log('Error updating artist:', error.message)
       toast({
-        variant: "destructive",
-        title: "Something went wrong.",
+        variant: 'destructive',
+        title: 'Something went wrong.',
         description: error.response.data.message
       })
     }
-  };
+  }
 
   return (
     <section className='space-y-5'>
-      <h1 className='font-bold text-3xl'>Add New</h1>
+      <h1 className='font-bold text-3xl'>Add New Publication</h1>
       <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' encType='multipart/form-data' onSubmit={handleSubmit}>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Name' required placeholder='Enter full name'  ref={fullname} />
-          <Input label='Author' required placeholder='Enter Author'  ref={author} />
-          <Input label='Price' required placeholder='Enter Price' type='number'  ref={pric} />
-          <Input label='Curret Stock' required placeholder='Enter Curret Stock' type='number'  ref={stock} />
-          <fieldset>
-            <Input label='Publication Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} />
-            <ul className='text-xs space-y-1 mt-2'>
-              <li>Pixel size: 400 x 400px (min)</li>
-              <li>Aspect ratio: 1:1 (square)</li>
-              <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
-              <li>Resolution: 72ppi (min)</li>
-            </ul>
-          </fieldset>
+          <Input label='Name' required placeholder='Enter full name' ref={fullname} />
+          <Textarea label='Description' required placeholder='Enter your comprehensive description' className='h-full' ref={descrip} />
+          <Input label='Author/Publisher' required placeholder='Enter Author' ref={author} />
+          <Input label='Price' required placeholder='Enter Price' type='number' ref={pric} />
+          <Input label='Curret Stock' required placeholder='Enter Curret Stock' type='number' ref={stock} />
 
           <fieldset>
             <Label className='block mb-2.5'>Visibility</Label>
             <RadioGroup className='flex items-center'>
               <div className='flex items-center space-x-2'>
-                <input type="radio" required value='1' id='visible' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)}/>
+                <input type='radio' required value='1' id='visible' name='isVisible' checked={isVisible == 1} onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <input type="radio" value='0' id='hidden' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
+                <input type='radio' value='0' id='hidden' name='isVisible' checked={isVisible == 0} onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -93,7 +84,16 @@ export const InventoryPublicationCreatePage = () => {
             </RadioGroup>
           </fieldset>
         </fieldset>
-        <Textarea label='Description' required placeholder='Enter your comprehensive description' className='h-full'  ref={descrip} />
+        <fieldset>
+          <Input label='Publication Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} />
+          <ul className='text-xs space-y-1 mt-2'>
+            <li>Pixel size: 400 x 400px (min)</li>
+            <li>Aspect ratio: 1:1 (square)</li>
+            <li>Format: jpg, pdf, png</li>
+            <li>File size: 500KB (max)</li>
+            <li>Resolution: 72ppi (min)</li>
+          </ul>
+        </fieldset>
         <div className='col-span-2 flex items-center justify-end'>
           <Button size='lg' type='submit'>
             Save

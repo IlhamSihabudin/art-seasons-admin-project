@@ -104,18 +104,18 @@ const GeneralTab = ({ data }: { data: ArtFair }) => {
   )
 }
 
-const ArtistsTab = ({ data }: { data?: ArtfairDetail }) => {
+const ArtistsTab = ({ data }: { data?: ExhibitionDetail }) => {
   return (
     <div className='space-y-10'>
       {!data ? <Loader2 size={40} className="animate-spin mx-auto m-10" />
-      : data?.hasArtists.map((item) => (
-        <div key={item.id}>
-          <p className='text-xl font-medium mb-3'>{item.artist.fullname}</p>
+      : data.artists.map((item) => (
+        <div key={item.artist_id}>
+          <p className='text-xl font-medium mb-3'>{item?.artist_name}</p>
           <div className='grid grid-cols-2 gap-4'>
-            {item.has_artworks.map((artwork) => (
-              <div key={artwork.id} className='py-2.5 px-2 rounded border flex items-center gap-4'>
-                <img src={artwork.artwork.img} alt={artwork.artwork.desc} className='w-14 h-14 aspect-square object-cover object-center rounded' />
-                <p className='text-sm'>{artwork.artwork.name}</p>
+            {item.artworks.map((artwork) => (
+              <div key={artwork?.artwork_id} className='py-2.5 px-2 rounded border flex items-center gap-4'>
+                <img src={artwork?.artwork_img} alt={artwork?.artwork_desc} className='w-14 h-14 aspect-square object-cover object-center rounded' />
+                <p className='text-sm'>{artwork?.artwork_name}</p>
               </div>
             ))}
           </div>

@@ -9,35 +9,34 @@ import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPagina
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { columns } from './columns'
 
-
 interface CreatedArtwork {
-  artwork_id: number,
-  updated_at: string,
-  created_at: string,
+  artwork_id: number
+  updated_at: string
+  created_at: string
   id: number
 }
 
 export const ViewingRoomCreatePage = () => {
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState<InventoryArtwork[]>([]);
+  const [data, setData] = useState<InventoryArtwork[]>([])
 
   const navigateTo = useNavigate()
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const response = await API.get<ResponseApiList<InventoryArtwork>>(`/inventory/artworks`);
-        setData(response.data);
+        const response = await API.get<ResponseApiList<InventoryArtwork>>(`/inventory/artworks`)
+        setData(response.data)
       } catch (error) {
-        let errorMessage = "Error fetching data";
+        let errorMessage = 'Error fetching data'
         if (error instanceof Error) {
-          errorMessage = error.message;
+          errorMessage = error.message
         }
-        console.log(errorMessage);
+        console.log(errorMessage)
       }
     })()
   }, [])
@@ -59,13 +58,13 @@ export const ViewingRoomCreatePage = () => {
     }
   })
 
-  const getSelected = Object.keys(rowSelection).map((row) => {
-    const selectedFeatureId = (data[row] as InventoryArtwork).id;
-    return selectedFeatureId;
+  const getSelected = Object.keys(rowSelection).map(row => {
+    const selectedFeatureId = (data[row] as InventoryArtwork).id
+    return selectedFeatureId
   })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
     const formInput = {
       artwork_ids: getSelected
     }
@@ -73,22 +72,22 @@ export const ViewingRoomCreatePage = () => {
     try {
       await API.post<number[], ResponseApi<CreatedArtwork>>(`/viewing-room/artwork`, formInput, {
         Accept: 'application/json',
-        "Content-Type": 'application/json'
-      });
+        'Content-Type': 'application/json'
+      })
       await toast({
         title: `Success!`,
-        description: "Created data",
+        description: 'Created data'
       })
-      navigateTo('/content-management/viewing-room/artwork');
+      navigateTo('/content-management/viewing-room/artwork')
     } catch (error) {
-      console.log('Error updating artist:', error.message);
+      console.log('Error updating artist:', error.message)
       toast({
-        variant: "destructive",
-        title: "Something went wrong.",
+        variant: 'destructive',
+        title: 'Something went wrong.',
         description: error.response.data.message
       })
     }
-  };
+  }
 
   return (
     <section className='space-y-5'>
@@ -97,11 +96,7 @@ export const ViewingRoomCreatePage = () => {
         <fieldset>
           {data.length > 0 && (
             <div className='mt-4 space-y-2'>
-              <Input
-                label='Select Artworks'
-                placeholder='Search...'
-                onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)}
-              />
+              <Input label='Select Artworks' placeholder='Search...' onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} />
 
               <div className='bg-white rounded-lg border'>
                 <Table>
@@ -148,7 +143,16 @@ export const ViewingRoomCreatePage = () => {
             </div>
           )}
         </fieldset>
-        <div className='col-span-2 flex items-center justify-end'>
+        <div className='col-span-2 gap-4 flex items-center justify-end'>
+          <Button
+            variant={'outline'}
+            size='lg'
+            onClick={() => {
+              navigateTo(-1)
+            }}
+          >
+            Back
+          </Button>
           <Button size='lg' type='submit'>
             Save
           </Button>

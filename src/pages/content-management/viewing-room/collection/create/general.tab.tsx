@@ -1,55 +1,46 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { useToast } from '@/components/ui/use-toast'
-import { useRef, useState } from 'react'
-import { CollectionBodyRequest } from '.'
+import React from 'react'
+import CollectionForm from '@/types/forms/collection_form'
+import InputImage from '@/components/ui/input-image'
 
-export const GeneralTab = ({ callback, formInput }: { callback: (value: boolean) => void, formInput: (value: CollectionBodyRequest) => void }) => {
-  const { toast } = useToast();
-
-  const [img, setImg] = useState<File>();
-  const [isVisible, setIsVisible] = useState("");
-  const fullname = useRef<HTMLInputElement>(null)
-  const orga = useRef<HTMLInputElement>(null)
-  const loc = useRef<HTMLInputElement>(null)
-  const descrip = useRef<HTMLTextAreaElement>(null)
-  const tag = useRef<HTMLInputElement>(null)
-
-  const handleNextTab = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const name = fullname.current.value;
-    const organizer = orga.current.value;
-    const location = loc.current.value;
-    const desc = descrip.current.value;
-    const tags = tag.current.value;
-
-    // verify data
-    if (!name || !organizer || !location || !desc || !isVisible || !tags || !img ) {
-      return toast({
-        variant: "destructive",
-        title: `Please fill out all field`,
-      })
-    }
-
-    formInput({name, tags, organizer, location, desc, img, is_visible: isVisible})
-
-    callback(true);
-  };
+export const GeneralTab = ({ formData, setFormData }: { formData: CollectionForm; setFormData: React.Dispatch<React.SetStateAction<CollectionForm>> }) => {
+  const handleInputTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target
+    setFormData({ ...formData, [name]: value })
+  }
 
   return (
     <section>
       <form className='grid md:grid-cols-2 md:gap-10 gap-5 container'>
         <fieldset className='md:space-y-7 space-y-3'>
-          <Input label='Exhibition Name' required placeholder='Enter exhibition name' ref={fullname} />
-          <Input label='Tags' placeholder='Enter tags' required ref={tag}  />
-          <Input label='Organizer' placeholder='Enter artist or organisation name' required ref={orga}  />
-          <Input label='Location' placeholder='Enter Location' required ref={loc}  />
+          <Input label='Collection Name' required placeholder='Enter collection name' name='name' value={formData.name} onChange={handleInputTextChange} />
+          <fieldset className='grid grid-cols-2 gap-5'>
+            <Input label='Start Date' type='date' required placeholder='Enter start date' name='start_date' value={formData.start_date} onChange={handleInputTextChange} />
+            <Input label='End Date' type='date' required placeholder='Enter end date' name='end_date' value={formData.end_date} onChange={handleInputTextChange} />
+          </fieldset>
+          <Input label='Tags' placeholder='Enter tags' required name='tags' value={formData.tags} onChange={handleInputTextChange} />
+          <Input label='Organizer' placeholder='Enter artist or organisation name' required name='organizer' value={formData.organizer} onChange={handleInputTextChange} />
+          <Input label='Location' placeholder='Enter Location' required name='location' value={formData.location} onChange={handleInputTextChange} />
           <fieldset>
-            <Input label='Featured Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept=".jpg,.pdf,.png" />
+            {/* <Input
+              label='Featured Image'
+              type='file'
+              required
+              onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                const files = (e.target as HTMLInputElement).files
+                if (files !== null) {
+                  // setImg(files[0])
+                  setFormData({ ...formData, img: files[0] })
+                }
+              }}
+              accept='.jpg,.pdf,.png'
+            /> */}
+            <InputImage label='Featured Image' onChangeImage={file => {
+              setFormData({ ...formData, img: file })
+            }} />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Pixel size: 1440 x 480px (min)</li>
               <li>Aspect ratio: 27:9 (square)</li>
@@ -58,18 +49,56 @@ export const GeneralTab = ({ callback, formInput }: { callback: (value: boolean)
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
+          <fieldset>
+            <Input
+              label='Attach Document'
+              type='file'
+              required
+              onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                const files = (e.target as HTMLInputElement).files
+                if (files !== null) {
+                  // setDoc(files[0])
+                  setFormData({ ...formData, attach_doc: files[0] })
+                }
+              }}
+              accept='.pdf'
+            />
+            <ul className='text-xs space-y-1 mt-2.5'>
+              <li>Format: pdf</li>
+              <li>File size: ?MB (max)</li>
+            </ul>
+          </fieldset>
 
           <fieldset>
             <Label className='block mb-2.5'>Visibility</Label>
             <RadioGroup className='flex items-center'>
               <div className='flex items-center space-x-2'>
-                <input type="radio" value='1' id='visible' required name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)}/>
+                <input
+                  type='radio'
+                  value='1'
+                  id='visible'
+                  required
+                  name='isVisible'
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                    setFormData({ ...formData, is_visible: 1 })
+                  }}
+                  checked={formData.is_visible.toString() == '1'}
+                />
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <input type="radio" value='0' id='hidden' name="isVisible" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
+                <input
+                  type='radio'
+                  value='0'
+                  id='hidden'
+                  name='isVisible'
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                    setFormData({ ...formData, is_visible: 0 })
+                  }}
+                  checked={formData.is_visible.toString() == '0'}
+                />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -77,12 +106,19 @@ export const GeneralTab = ({ callback, formInput }: { callback: (value: boolean)
             </RadioGroup>
           </fieldset>
         </fieldset>
-        <Textarea label='Description' required placeholder='Enter your comprehensive description on the artist' wrapperClassName='flex flex-col' className='flex-1' ref={descrip} />
-        <div className='col-span-2 flex items-center justify-end'>
-          <Button size='lg' type='submit' onClick={handleNextTab}>
-            Next
-          </Button>
-        </div>
+        <Textarea
+          label='Description'
+          required
+          placeholder='Enter your comprehensive description on the artist'
+          wrapperClassName='flex flex-col'
+          className='flex-1'
+          name='desc'
+          value={formData.desc}
+          onChange={e => {
+            setFormData({ ...formData, desc: e.target.value })
+          }}
+        />
+        <div className='col-span-2 gap-4 flex items-center justify-end'></div>
       </form>
     </section>
   )

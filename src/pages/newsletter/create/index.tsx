@@ -14,46 +14,49 @@ import { useToast } from '@/components/ui/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 
+import { ImageIcon } from '@radix-ui/react-icons'
+import { Trash } from 'lucide-react'
+import InputImage from '@/components/ui/input-image'
+
 interface ReqeustNewslatter {
-  title: string,
-  img: File,
-  is_for_all: string,
-  customer_ids: { [key: string]: number };
+  title: string
+  img: File
+  is_for_all: string
+  customer_ids: { [key: string]: number }
 }
 
 interface ResponseNewslatter {
-  title: string;
-  is_for_all: string;
-  customer_ids: string[];
-  img: string;
-  updated_at: string;
-  created_at: string;
-  id: number;
-
+  title: string
+  is_for_all: string
+  customer_ids: string[]
+  img: string
+  updated_at: string
+  created_at: string
+  id: number
 }
 
 export const NewsletterCreatePage = () => {
-  const { toast } = useToast();
-  const navigateTo = useNavigate();
+  const { toast } = useToast()
+  const navigateTo = useNavigate()
 
   const [data, setData] = useState<CustomerNewsletter[]>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
 
-  const title = useRef<HTMLInputElement>();
-  const [img, setImg] = useState<File | Blob>();
-  const [isForAll, setIsForAll] = useState<string>();
+  const title = useRef<HTMLInputElement>()
+  const [img, setImg] = useState<File | Blob>()
+  const [isForAll, setIsForAll] = useState<string>('0')
   // const [selecetedCustomer, setSelectedCustomer] = useState<CustomerNewsletter[]>([]);
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const res = await API.get<ResponseApiList<CustomerNewsletter>>('/newsletter/list-customer');
+        const res = await API.get<ResponseApiList<CustomerNewsletter>>('/newsletter/list-customer')
         setData(res.data)
-      } catch(error) {
-        const err = error as AxiosError;
-        console.log((err.response?.data as AxiosError).message);
+      } catch (error) {
+        const err = error as AxiosError
+        console.log((err.response?.data as AxiosError).message)
       }
     })()
   }, [])
@@ -75,22 +78,28 @@ export const NewsletterCreatePage = () => {
     }
   })
 
-  function handleChangeImg(e: React.FormEvent<HTMLInputElement>) {
-    const files = (e.target as HTMLInputElement).files
-    if (files !== null) {
-      setImg(files[0]);
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const getSelected = Object.keys(rowSelection).map((row) => {
-      const selectedCustomer = (data[row] as CustomerNewsletter).id;
-      return selectedCustomer;
+    // verify data
+    if (!title.current?.value) {
+      return toast({
+        variant: 'destructive',
+        title: `Please fill out all field`
+      })
+    } else if (!img) {
+      return toast({
+        variant: 'destructive',
+        title: `Please choose image`
+      })
+    }
+
+    const getSelected = Object.keys(rowSelection).map(row => {
+      const selectedCustomer = (data[row] as CustomerNewsletter).id
+      return selectedCustomer
     })
-    
-    const formInput: ReqeustNewslatter = { 
+
+    const formInput: ReqeustNewslatter = {
       title: title.current.value,
       img,
       is_for_all: isForAll,
@@ -100,26 +109,26 @@ export const NewsletterCreatePage = () => {
     try {
       await API.post<ReqeustNewslatter, ResponseApi<ResponseNewslatter>>(`/newsletter`, formInput, {
         Accept: '*/*',
-        "Content-Type": 'multipart/form-data'
-      });
+        'Content-Type': 'multipart/form-data'
+      })
       await toast({
         title: `Success!`,
-        description: "Created data",
+        description: 'Created data'
       })
-      navigateTo('/newsletter');
+      navigateTo('/newsletter')
     } catch (error) {
       const err = error as AxiosError
       let desc = (err.response?.data as AxiosError).data
-      if (desc == "Undefined array key \"customer_ids\"") {
-        desc = "Select at least one customer"
+      if (desc == 'Undefined array key "customer_ids"') {
+        desc = 'Select at least one customer'
       }
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: (err.response?.data as AxiosError).message,
         description: desc
       })
     }
-  };
+  }
 
   return (
     <section className='space-y-5'>
@@ -131,48 +140,57 @@ export const NewsletterCreatePage = () => {
           <Label className='block mb-2.5'>
             Featured Image <span className='text-destructive'>*</span>
           </Label>
-          <div className='flex items-center gap-5 w-full mb-2.5'>
-            <div className='bg-white py-3 px-4 rounded border flex items-center justify-between flex-1'>
-              <div className='flex items-center gap-4'>
-                <img src={img ? URL.createObjectURL(img) : 'https://placehold.co/52x52'} alt='Feature Image' className='w-14 h-14 aspect-square object-cover object-center rounded' />
-                <p className='text-sm'>Image Name 1</p>
-              </div>
-              {/* <button type='button'>
-                <Trash size={18} />
-              </button> */}
+          <div className='flex justify-evenly gap-4 w-full'>
+            <div className='w-full'>
+              <InputImage
+                onChangeImage={file => {
+                  setImg(file)
+                }}
+              />
             </div>
-            <ul className='text-xs space-y-1'>
-              <li>Pixel size: 400 x 400px (min)</li>
+            <ul className='text-xs space-y-1 w-full'>
+              <li>Pixel size: 1440 x 480 (min)</li>
               <li>Aspect ratio: 1:1 (square)</li>
               <li>Format: jpg, pdf, png</li>
               <li>File size: 500KB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </div>
-          <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' required onChange={handleChangeImg} />
-          {/* <Button variant='outline' type='button'>
-            Replace Image
-          </Button> */}
         </fieldset>
 
         <fieldset>
           <Label className='block mb-2.5'>Send to</Label>
           <RadioGroup defaultValue='0' className='flex items-center'>
             <div className='flex items-center space-x-2'>
-              <Input type="radio" value='1' required id='forAll' name="isForAll" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsForAll(e.target.value)}/>
+              <Input
+                type='radio'
+                value='1'
+                required
+                id='forAll'
+                checked={isForAll == '1'}
+                name='isForAll'
+                onChange={(e: React.FormEvent<HTMLInputElement>) => setIsForAll(e.target.value)}
+              />
               <Label htmlFor='forAll' className='font-normal'>
                 All Customers
               </Label>
             </div>
             <div className='flex items-center space-x-2'>
-              <Input type="radio" value='0' id='notForAll' name="isForAll" onChange={(e: React.FormEvent<HTMLInputElement>) => setIsForAll(e.target.value)}/>
+              <Input
+                type='radio'
+                value='0'
+                id='notForAll'
+                checked={isForAll == '0'}
+                name='isForAll'
+                onChange={(e: React.FormEvent<HTMLInputElement>) => setIsForAll(e.target.value)}
+              />
               <Label htmlFor='notForAll' className='font-normal'>
                 Selected Customers
               </Label>
             </div>
           </RadioGroup>
         </fieldset>
-        
+
         {isForAll !== '1' && (
           <>
             <Input
@@ -228,7 +246,16 @@ export const NewsletterCreatePage = () => {
         )}
 
         {/* <Input label='Schedule to send on' type='date' /> */}
-        <div className='col-span-2 flex items-center justify-end'>
+        <div className='col-span-2 gap-4 flex items-center justify-end'>
+          <Button
+            variant={'outline'}
+            size='lg'
+            onClick={() => {
+              navigateTo(-1)
+            }}
+          >
+            Back
+          </Button>
           <Button size='lg' type='submit'>
             Save
           </Button>

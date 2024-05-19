@@ -1,3 +1,5 @@
+import ArtistsRequest from "../requests/artists_request";
+
 export interface ErrorRes {
   error: string | boolean
   message: string
@@ -117,19 +119,23 @@ interface HasArtists {
 
 export interface InventoryArtwork extends Artwork {
   has_artists: HasArtists[]
+  hasArtists: HasArtists[]
 }
 
 export interface ExhibitionArtist extends BelongExhibition {
   artist: Artist;
   has_artworks: HasArtwork[];
+  artworks: Artwork[]
 }
 
 export interface ExhibitionDetail extends Exhibition {
   hasArtists: ExhibitionArtist[];
+  artists: ArtistsRequest[];
 }
 
 export interface CollectionDetail extends Collection {
   hasArtists: ExhibitionArtist[];
+  artists: ArtistsRequest[];
 }
 
 export interface ArtFair {
@@ -167,7 +173,8 @@ export interface ArtfairArtist extends BelongArtfair {
 }
 
 export interface ArtfairDetail extends ArtFair {
-  hasArtists: ArtfairArtist[]
+  hasArtists: ArtfairArtist[];
+  artists: ArtistsRequest[];
 }
 
 export interface Event {
@@ -274,7 +281,7 @@ export interface About {
 export interface Collection {
   id: number;
   name: string;
-  tags: string;
+  tags: string[];
   start_date: string | null;
   end_date: string | null;
   organizer: string;

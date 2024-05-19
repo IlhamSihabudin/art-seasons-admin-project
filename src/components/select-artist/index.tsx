@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Search } from 'lucide-react'
-import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
+import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable, RowSelectionState } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -10,11 +10,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { columns } from './columns'
 import { Artist } from '@/types/API'
 
-export const SelectArtist = ({ artists, selectedArtist }: { artists: Artist[], selectedArtist: (value: Record<string, boolean>) => void }) => {
+export const SelectArtist = ({
+  artists,
+  selectedArtist,
+  initialSelectedArtist
+}: {
+  artists: Artist[]
+  selectedArtist: (value: Record<string, boolean>) => void
+  initialSelectedArtist?: Record<string, boolean>
+}) => {
   const [isOpen, setIsOpen] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [rowSelection, setRowSelection] = useState({})
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
   const table = useReactTable({
     data: artists,
@@ -29,14 +37,26 @@ export const SelectArtist = ({ artists, selectedArtist }: { artists: Artist[], s
     state: {
       sorting,
       rowSelection,
-      columnFilters
+      columnFilters,
     }
   })
+  
 
   const handleSelect = () => {
     selectedArtist(rowSelection)
     setIsOpen(false)
   }
+
+  const handleInitialRowSelection = () => {
+    if (initialSelectedArtist) {
+      setRowSelection(initialSelectedArtist)
+      handleSelect()
+    }
+  }
+
+  useEffect(() => {
+    handleInitialRowSelection()
+  }, [initialSelectedArtist])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

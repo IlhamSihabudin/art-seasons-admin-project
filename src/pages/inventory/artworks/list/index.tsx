@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -9,11 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import { columns } from './columns'
 import { InventoryArtwork } from '@/types/API'
+import { TagsAction } from './actions/tags.action'
 
 export const ArtworksTab = ({ data }: { data: InventoryArtwork[] }) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
+  const [dataSelected, setDataSelected] = useState<InventoryArtwork[]>([])
 
   const table = useReactTable({
     data,
@@ -28,9 +30,18 @@ export const ArtworksTab = ({ data }: { data: InventoryArtwork[] }) => {
     state: {
       sorting,
       rowSelection,
-      columnFilters
+      columnFilters,
     }
   })
+
+  useEffect(() => {
+    const getSelected = Object.keys(rowSelection).map(dt => {
+      const artisIndex = data[dt]
+      return artisIndex
+    })
+
+    setDataSelected(getSelected)
+  }, [rowSelection])
 
   return (
     <section className='space-y-5'>
@@ -39,6 +50,11 @@ export const ArtworksTab = ({ data }: { data: InventoryArtwork[] }) => {
           <Plus size={16} />
           Add New
         </Link>
+        {/* <Link to='/inventory/artworks/create' className={`${buttonVariants()} gap-2`}>
+          <Plus size={16} />
+          Tags
+        </Link> */}
+        <TagsAction dataSelected={dataSelected} />
         <div className='text-sm font-medium flex-1'>
           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
