@@ -201,6 +201,7 @@ export const EventsEditPage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

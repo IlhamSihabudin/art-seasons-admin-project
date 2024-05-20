@@ -182,6 +182,7 @@ export const NewsEditPage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

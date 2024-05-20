@@ -138,6 +138,7 @@ export const PublicationsEditPage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

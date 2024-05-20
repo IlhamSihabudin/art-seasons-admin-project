@@ -158,6 +158,7 @@ export const EventsCreatePage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

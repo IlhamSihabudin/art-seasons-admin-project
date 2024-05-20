@@ -137,7 +137,7 @@ export const ExhibitionsCreatePage = () => {
         </TabsContent>
       </Tabs>
       <div className='col-span-2 gap-4 flex items-center justify-end'>
-        <Button variant={'outline'} size='lg' onClick={() => {navigateTo(-1)}}>
+        <Button variant={'outline'} type='button' size='lg' onClick={() => {navigateTo(-1)}}>
           Back
         </Button>
         <Button size='lg' type='button' onClick={handleSubmit}>

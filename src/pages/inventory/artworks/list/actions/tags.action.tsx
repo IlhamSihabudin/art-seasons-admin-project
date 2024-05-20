@@ -1,25 +1,77 @@
 import { Plus } from 'lucide-react'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { InventoryArtwork } from '@/types/API'
+import { InventoryArtwork, ResponseApi } from '@/types/API'
 import { Link } from 'react-router-dom'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CreateTagAction } from '@/components/ui/create-tag-action'
 import Chip from '@/components/ui/chip'
+import { toast } from '@/components/ui/use-toast'
+import { API } from '@/lib/API'
+import { AxiosError } from 'axios'
 
 export const TagsAction = ({ dataSelected }: { dataSelected: InventoryArtwork[] }) => {
   const [tags, setTags] = useState<string[]>([])
+  const [open, setOpen] = useState(false)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log('form data', {
-      'ids' : dataSelected.map(value => value.id),
-      'tags': tags
+      ids: dataSelected.map(value => value.id),
+      tags: tags
     })
+
+    if (tags.length == 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong.',
+        description: "Please enter data for at least 1 tag"
+      })
+      return
+    }
+
+    const body = {
+      artwork_ids: dataSelected.map(value => value.id),
+      tags: tags
+    }
+
+    try {
+      await API.post<typeof body, ResponseApi<any>>(`/inventory/artworks/tags`, body, {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      })
+      await toast({
+        title: `Success!`,
+        description: 'Add tags'
+      })
+      
+      setOpen(false)
+      setTags([])
+    } catch (error) {
+      const err = error as AxiosError
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong.',
+        description: (err.response?.data as AxiosError).message
+      })
+    }
   }
 
+  useEffect(() => {
+    if (open) {
+      if (dataSelected.length == 0) {
+        setOpen(false)
+        toast({
+          variant: 'destructive',
+          title: 'Something went wrong.',
+          description: "Please select artwork"
+        })
+      }
+    }
+  }, [open])
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <div className={`${buttonVariants()} gap-2`}>
           <Plus size={16} />
@@ -49,17 +101,12 @@ export const TagsAction = ({ dataSelected }: { dataSelected: InventoryArtwork[] 
                 <Input className='min-w-64' placeholder='Enter tag' readOnly />
               ) : (
                 tags.map(tag => {
-                  return (
-                    <Chip text={tag} />
-                  )
+                  return <Chip text={tag} />
                 })
               )}
               <CreateTagAction
                 onSubmit={(tag: string) => {
-                  setTags([
-                    ...tags,
-                    tag
-                  ])
+                  setTags([...tags, tag])
                 }}
               />
             </div>

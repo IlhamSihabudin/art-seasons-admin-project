@@ -251,6 +251,7 @@ export const InventoryArtworksEditPage = () => {
         <Button
           variant={'outline'}
           size='lg'
+          type='button'
           onClick={() => {
             navigateTo(-1)
           }}

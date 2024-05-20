@@ -147,6 +147,7 @@ export const ViewingRoomCreatePage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

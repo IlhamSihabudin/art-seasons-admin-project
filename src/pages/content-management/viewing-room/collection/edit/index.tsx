@@ -188,6 +188,7 @@ export const ViewingRoomEditPage = () => {
         <Button
           variant={'outline'}
           size='lg'
+          type='button'
           onClick={() => {
             navigateTo(-1)
           }}

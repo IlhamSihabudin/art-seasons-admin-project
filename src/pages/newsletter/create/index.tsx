@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import { columns } from './columns'
 import { API } from '@/lib/API'
-import { CustomerNewsletter, ResponseApiList } from '@/types/API'
+import { CustomerNewsletter, ResponseApi, ResponseApiList } from '@/types/API'
 import { useToast } from '@/components/ui/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
@@ -47,6 +47,8 @@ export const NewsletterCreatePage = () => {
   const title = useRef<HTMLInputElement>()
   const [img, setImg] = useState<File | Blob>()
   const [isForAll, setIsForAll] = useState<string>('0')
+
+  const [scheduleSendOn, setScheduleSendOn] = useState('');
   // const [selecetedCustomer, setSelectedCustomer] = useState<CustomerNewsletter[]>([]);
 
   useEffect(() => {
@@ -99,11 +101,19 @@ export const NewsletterCreatePage = () => {
       return selectedCustomer
     })
 
+    if (isForAll == '0' && getSelected.length == 0) {
+      return toast({
+        variant: 'destructive',
+        title: `Please select customer`
+      })
+    }
+
     const formInput: ReqeustNewslatter = {
       title: title.current.value,
       img,
       is_for_all: isForAll,
-      customer_ids: getSelected
+      customer_ids: getSelected,
+      schedule_send_on: scheduleSendOn.replace('T', ' ') + ':00'
     }
 
     try {
@@ -245,11 +255,23 @@ export const NewsletterCreatePage = () => {
           </>
         )}
 
+        <Input
+          label='Schedule to send on'
+          placeholder='Select date and time'
+          type={'datetime-local'}
+          value={scheduleSendOn}
+          required
+          onChange={(e) => {
+            setScheduleSendOn(e.target.value)
+          }}
+        />
+
         {/* <Input label='Schedule to send on' type='date' /> */}
         <div className='col-span-2 gap-4 flex items-center justify-end'>
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

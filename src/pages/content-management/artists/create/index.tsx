@@ -9,13 +9,14 @@ import { useToast } from '@/components/ui/use-toast'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import InputImage from '@/components/ui/input-image'
 
 export const ArtistsCreatePage = () => {
   const { toast } = useToast()
 
   const [profile, setProfile] = useState<File | undefined>()
   const [doc, setDoc] = useState<File | undefined>()
-  const [isVisible, setIsVisible] = useState('')
+  const [isVisible, setIsVisible] = useState('1')
   const fullname = useRef<HTMLInputElement>(null)
   const tags = useRef<HTMLInputElement>(null)
   const birth_year = useRef<HTMLInputElement>(null)
@@ -26,6 +27,23 @@ export const ArtistsCreatePage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (
+      !fullname ||
+      !tags ||
+      !birth_year ||
+      !short_desc ||
+      !profile ||
+      !doc ||
+      !isVisible ||
+      !long_desc 
+    ) {
+      return toast({
+        variant: 'destructive',
+        title: `Please fill out all field`
+      })
+    }
+
     const formInput = {
       fullname: fullname.current?.value,
       tags: tags.current?.value,
@@ -67,7 +85,7 @@ export const ArtistsCreatePage = () => {
           <Input label='Birth Year' placeholder='Enter birth year' ref={birth_year} />
           <Textarea label='Short Description' required placeholder='Enter short description that will appear on the main top banner of the artist page' ref={short_desc} />
           <fieldset>
-            <Input
+            {/* <Input
               label='Profile Picture'
               type='file'
               required
@@ -77,7 +95,13 @@ export const ArtistsCreatePage = () => {
                   setProfile(files[0])
                 }
               }}
-            />
+            /> */}
+            <InputImage
+                label='Featured Picture'
+                onChangeImage={file => {
+                  setProfile(file)
+                }}
+              />
             <ul className='text-xs space-y-1 mt-2'>
               <li>Pixel size: 400 x 400px (min)</li>
               <li>Aspect ratio: 1:1 (square)</li>
@@ -113,6 +137,7 @@ export const ArtistsCreatePage = () => {
                   value='1'
                   id='visible'
                   name='isVisible'
+                  checked={isVisible == '1'}
                   onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)}
                 />
                 <Label htmlFor='visible' className='font-normal'>
@@ -125,6 +150,7 @@ export const ArtistsCreatePage = () => {
                   value='0'
                   id='hidden'
                   name='isVisible'
+                  checked={isVisible == '0'}
                   onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible((e.target as HTMLInputElement).value)}
                 />
                 <Label htmlFor='hidden' className='font-normal'>
@@ -139,6 +165,7 @@ export const ArtistsCreatePage = () => {
           <Button
             variant={'outline'}
             size='lg'
+            type='button'
             onClick={() => {
               navigateTo(-1)
             }}

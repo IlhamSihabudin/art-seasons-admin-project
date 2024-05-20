@@ -140,6 +140,7 @@ export const ArtFairsCreatePage = () => {
         <Button
           variant={'outline'}
           size='lg'
+          type='button'
           onClick={() => {
             navigateTo(-1)
           }}

@@ -41,18 +41,19 @@ const InputImage: React.FC<Props> = ({ label, size = 24, required = true, initia
       )}
 
       <div className='flex flex-col w-full gap-2'>
-        <div className='bg-white py-3 px-4 rounded border flex items-center justify-between flex-1'>
+        <div className='bg-white rounded border flex items-center justify-between flex-1 pr-3'>
+        {/* py-3 px-4 */}
           <div className='flex items-center gap-4 w-full'>
             {img ? (
-              <img src={URL.createObjectURL(img)} alt='Feature Image' className='w-14 h-14 aspect-square object-cover object-center rounded' />
+              <img src={URL.createObjectURL(img)} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-l-lg' />
             ) : (
               <>
                 {initialImage ? (
                   <>
-                    <img src={initialImage} alt='Feature Image' className='w-14 h-14 aspect-square object-cover object-center rounded' />
+                    <img src={initialImage} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-l-lg' />
                   </>
                 ) : (
-                  <div className='bg-gray-300 p-4 rounded-sm'>
+                  <div className='bg-gray-300 p-4 rounded-sm my-3 ml-4'>
                     <ImageIcon color={'#848897'} width={size} height={size} />
                   </div>
                 )}
