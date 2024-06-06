@@ -3,6 +3,7 @@ import { Eye, Pencil, Trash, ArrowUpDown } from 'lucide-react'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { CustomerNewsletter } from '@/types/API'
+import { ViewAction } from './actions/view.action'
 
 export const columns: ColumnDef<CustomerNewsletter>[] = [
   {
@@ -66,11 +67,12 @@ export const columns: ColumnDef<CustomerNewsletter>[] = [
   {
     accessorKey: '',
     header: 'Actions',
-    cell: () => (
+    cell: ({row}) => (
       <div className='flex items-center gap-2.5'>
-        <Eye size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
+        {/* <Eye size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
         <Pencil size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
-        <Trash size={20} className='cursor-pointer hover:opacity-90 transition-opacity' />
+        <Trash size={20} className='cursor-pointer hover:opacity-90 transition-opacity' /> */}
+        <ViewAction data={row.original} />
       </div>
     )
   }

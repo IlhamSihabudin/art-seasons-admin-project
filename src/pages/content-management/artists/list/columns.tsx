@@ -26,7 +26,7 @@ export const columns: ColumnDef<Artist>[] = [
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Exhibition Name
+          Artist Name
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )

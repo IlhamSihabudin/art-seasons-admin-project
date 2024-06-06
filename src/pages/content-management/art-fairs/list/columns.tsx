@@ -46,34 +46,18 @@ export const columns: ColumnDef<ArtFair>[] = [
     }
   },
   {
-    accessorKey: 'start_date',
+    accessorKey: 'date',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Start Date
+          Date
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     },
     cell: ({ row }) => (
-      <p>
-        {formatDate(row.original.start_date)}
-      </p>
-    )
-  },
-  {
-    accessorKey: 'end_date',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Start Date
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    },
-    cell: ({ row }) => (
-      <p>
-        {formatDate(row.original.end_date)}
+      <p className='min-w-[175px]'>
+        {formatDate(row.original.start_date) + " - " + formatDate(row.original.end_date)}
       </p>
     )
   },

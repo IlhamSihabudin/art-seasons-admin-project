@@ -11,6 +11,7 @@ import { API } from '@/lib/API'
 import { About, ResponseApi } from '@/types/API'
 import { AxiosError } from 'axios'
 import { useGet } from '@/hooks/useGet'
+import InputImage from '@/components/ui/input-image'
 
 // interface formArray {
 //   id: number;
@@ -129,7 +130,15 @@ export const AboutPage = () => {
             {feat && (
               <FeaturedImage image={feat} />
             )}
-            <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' className='hidden' id='featured' required onChange={handleChangeFeat} />
+            {/* <InputImage
+              required={false}
+              label='Featured Image'
+              initialImage={initialImage}
+              onChangeImage={file => {
+                setFormData({ ...formData, img: file })
+              }}
+            /> */}
+            <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' className='hidden' id='featured' onChange={handleChangeFeat} />
             <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='featured' >Replace Image</Label>
           </fieldset>
           {/* END FEATURED IMAGE ================================== */}
@@ -292,7 +301,7 @@ const LogoImageCard = ({ image, images, setImage }: LogoImageProps) => {
         </button>
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
-            <img src={URL.createObjectURL(image.img)} alt='' className='rounded aspect-square object-center object-cover' />
+            <img src={URL.createObjectURL(image.img)} alt='' className='h-36 rounded aspect-square object-center object-cover' />
             <p className='text-sm truncate'>
               {image.name}
             </p>

@@ -16,7 +16,7 @@ export const CustomerCreatePage = () => {
   const pass_conf = useRef("")
   const phone = useRef("")
   const address = useRef("")
-  const addition = useRef()
+  // const addition = useRef()
   const postal_code = useRef("")
   
 
@@ -31,7 +31,7 @@ export const CustomerCreatePage = () => {
       password_confirmation: pass_conf.current.value,
       phone_number: phone.current.value,
       address: address.current.value,
-      addtional_address: addition.current.value,
+      // addtional_address: addition.current.value,
       postal_code: postal_code.current.value
     }
 
@@ -69,9 +69,12 @@ export const CustomerCreatePage = () => {
           <Textarea name="address" label='Address' placeholder='Jakarta Selatan, DKI Jakarta, Indonesia'  ref={address} />
         </fieldset>
 
-        <Textarea className='h-full' name="additional" placeholder="Jl. Gatot Subroto, Gg. Alam Bahagia No. 123 " label='Additional Address' ref={addition}/>
+        {/* <Textarea className='h-full' name="additional" placeholder="Jl. Gatot Subroto, Gg. Alam Bahagia No. 123 " label='Additional Address' ref={addition}/> */}
 
-        <div className='col-span-2 flex items-center justify-end'>
+        <div className='col-span-2 gap-4 flex items-center justify-end'>
+          <Button variant={'outline'} type='button' size='lg' onClick={() => {navigateTo(-1)}}>
+            Back
+          </Button>
           <Button size='lg' type='submit'>
             Save
           </Button>

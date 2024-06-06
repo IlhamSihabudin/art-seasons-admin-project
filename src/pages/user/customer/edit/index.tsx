@@ -20,7 +20,7 @@ export const CustomerEditPage = () => {
   const pass_conf = useRef("")
   const phone = useRef("")
   const address = useRef("")
-  const addition = useRef()
+  // const addition = useRef()
   const postal_code = useRef("")
 
   const params = useParams()
@@ -58,7 +58,7 @@ export const CustomerEditPage = () => {
       password_confirmation: pass_conf.current.value,
       phone_number: phone.current.value,
       address: address.current.value,
-      addtional_address: addition.current.value,
+      // addtional_address: addition.current.value,
       postal_code: postal_code.current.value
     }
     
@@ -97,14 +97,17 @@ export const CustomerEditPage = () => {
             <Pencil size={24} className='cursor-pointer mb-20 hover:opacity-90 transition-opacity absolute right-0 top-16' onClick={() => setPassEditable(true)} />
           </div>
           <Input type='password' disabled={!passEditable} required label='Password Confirmation' placeholder='Enter password confirmation' ref={pass_conf} />
-          <Input type="tel" name="telphone" placeholder="081234567890" pattern="[0-9]{12}" maxLength="12" required label='Phone Number' ref={phone} defaultValue={data?.phone_number} />
-          <Input name="postal" placeholder=" 12345" maxLength={6} label='Postal Code' ref={postal_code} defaultValue={data?.postal_code} />
+          <Input type="tel" name="telphone" placeholder="081234567890" pattern="[0-9]{12}" maxLength="12" label='Phone Number' ref={phone} defaultValue={data?.phone_number} />
+          <Input name="postal" placeholder=" 123456" maxLength={6} label='Postal Code' ref={postal_code} defaultValue={data?.postal_code} />
           <Textarea name="address" label='Address' placeholder='Jakarta Selatan, DKI Jakarta, Indonesia'  ref={address} defaultValue={data?.address} />
         </fieldset>
 
-        <Textarea className='h-full' name="additional" placeholder="Jl. Gatot Subroto, Gg. Alam Bahagia No. 123 " label='Additional Address' ref={addition} defaultValue={data?.additional_address}/>
+        {/* <Textarea className='h-full' name="additional" placeholder="Jl. Gatot Subroto, Gg. Alam Bahagia No. 123 " label='Additional Address' ref={addition} defaultValue={data?.additional_address}/> */}
 
-        <div className='col-span-2 flex items-center justify-end'>
+        <div className='col-span-2 gap-4 flex items-center justify-end'>
+          <Button variant={'outline'} type='button' size='lg' onClick={() => {navigateTo(-1)}}>
+            Back
+          </Button>
           <Button size='lg' type='submit'>
             Save
           </Button>

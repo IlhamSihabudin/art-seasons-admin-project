@@ -52,7 +52,12 @@ export const columns: ColumnDef<User>[] = [
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
-    }
+    },
+    cell: ({ row }) => (
+      <p>
+        {row.original.role_name == "Content_manager" ? "Content Manager" : row.original.role_name}
+      </p>
+    )
   },
   {
     accessorKey: 'permissions',

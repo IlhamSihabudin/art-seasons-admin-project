@@ -32,6 +32,17 @@ export const columns: ColumnDef<Newsletter>[] = [
     }
   },
   {
+    accessorKey: 'customers',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Send to
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    }
+  },
+  {
     accessorKey: 'is_for_all',
     header: ({ column }) => {
       return (

@@ -17,22 +17,22 @@ export const DashboardPage = () => {
         <div className='bg-white rounded-lg shadow p-5 flex items-center justify-center flex-col text-center gap-y-2.5'>
           <p className='text-muted-foreground'>Pending Orders</p>
           <p className='text-3xl font-medium text-orange-700'>{data?.data.total_pending_order}</p>
-          <p className='text-muted-foreground uppercase'>all-time data</p>
+          <p className='text-muted-foreground uppercase text-xs'>all-time data</p>
         </div>
         <div className='bg-white rounded-lg shadow p-5 flex items-center justify-center flex-col text-center gap-y-2.5'>
           <p className='text-muted-foreground'>Total Orders</p>
           <p className='text-3xl font-medium'>{data?.data.total_order}</p>
-          <p className='text-muted-foreground uppercase'>current month</p>
+          <p className='text-muted-foreground uppercase text-xs'>current month</p>
         </div>
         <div className='bg-white rounded-lg shadow p-5 flex items-center justify-center flex-col text-center gap-y-2.5'>
           <p className='text-muted-foreground'>Total Subscribers</p>
           <p className='text-3xl font-medium'>{data?.data.total_subscribers}</p>
-          <p className='text-muted-foreground uppercase'>all-time data</p>
+          <p className='text-muted-foreground uppercase text-xs'>all-time data</p>
         </div>
         <div className='bg-white rounded-lg shadow p-5 flex items-center justify-center flex-col text-center gap-y-2.5'>
           <p className='text-muted-foreground'>Total Admin</p>
           <p className='text-3xl font-medium'>{data?.data.total_admin}</p>
-          <p className='text-muted-foreground uppercase'>all-time data</p>
+          <p className='text-muted-foreground uppercase text-xs'>all-time data</p>
         </div>
       </section>
     </section>

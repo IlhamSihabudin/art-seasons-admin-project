@@ -20,7 +20,7 @@ export const UserEditPage = () => {
   const email = useRef("")
   const password = useRef("")
   const pass_conf = useRef("")
-  const phone = useRef("")
+  // const phone = useRef("")
 
   const params = useParams()
   const navigateTo = useNavigate()
@@ -61,7 +61,7 @@ export const UserEditPage = () => {
       email: email.current.value,
       password: password.current.value,
       password_confirmation: pass_conf.current.value,
-      phone_number: phone.current.value,
+      // phone_number: phone.current.value,
       role
     }
     
@@ -100,34 +100,46 @@ export const UserEditPage = () => {
             <Pencil size={24} className='cursor-pointer mb-20 hover:opacity-90 transition-opacity absolute right-0 top-16' onClick={() => setPassEditable(true)} />
           </div>
           <Input type='password' disabled={!passEditable} required label='Password Confirmation' placeholder="Leave it blank if you don't want to change the password" ref={pass_conf} autoComplete="off" />
-          <Input type="tel" name="telphone" placeholder="081234567890" pattern="[0-9]{12}" maxLength="12" required label='Phone Number' ref={phone} defaultValue={data?.phone_number} />
+          {/* <Input type="tel" name="telphone" placeholder="081234567890" pattern="[0-9]{12}" maxLength="12" required label='Phone Number' ref={phone} defaultValue={data?.phone_number} /> */}
 
           <fieldset>
-            <Label className='block mb-2.5'>Role</Label>
-            <RadioGroup className='flex items-center'>
-              <div className='flex items-center space-x-2'>
+            <Label className='block mb-4'>Role</Label>
+            <RadioGroup className='flex flex-col items-start'>
+              <div className='flex items-start space-x-2'>
                 <input type="radio" value='superadmin' id='superadmin' required="required" name="role" onChange={(e: React.FormEvent<HTMLInputElement>) => setRole(e.target.value)} defaultChecked={paramsRole === "superadmin"} />
-                <Label htmlFor='superadmin' className='font-normal'>
-                  Super Admin
-                </Label>
+                <div className='flex flex-col gap-1'>
+                  <Label htmlFor='superadmin' className='font-normal'>
+                    Super Admin
+                  </Label>
+                  <p className='text-xs text-[#808080] font-light'>Permissions : All</p>
+                </div>
               </div>
               <div className='flex items-center space-x-2'>
                 <input type="radio" value='admin' id='admin' name="role" onChange={(e: React.FormEvent<HTMLInputElement>) => setRole(e.target.value)} defaultChecked={paramsRole === "admin"}  />
-                <Label htmlFor='admin' className='font-normal'>
-                  Admin
-                </Label>
+                <div className='flex flex-col gap-1'>
+                  <Label htmlFor='admin' className='font-normal'>
+                    Admin
+                  </Label>
+                  <p className='text-xs text-[#808080] font-light'>Permissions: All except User Management</p>
+                </div>
               </div>
               <div className='flex items-center space-x-2'>
                 <input type="radio" value='content_manager' id='content_manager' name="role" onChange={(e: React.FormEvent<HTMLInputElement>) => setRole(e.target.value)} defaultChecked={paramsRole === "content_manager"}  />
-                <Label htmlFor='content_manager' className='font-normal'>
-                  Content Manager
-                </Label>
+                <div className='flex flex-col gap-1'>
+                  <Label htmlFor='content_manager' className='font-normal'>
+                    Content Manager
+                  </Label>
+                  <p className='text-xs text-[#808080] font-light'>Permissions: Content Management, Settings</p>
+                </div>
               </div>
             </RadioGroup>
           </fieldset>
         </fieldset>
 
-        <div className='col-span-2 flex items-center justify-end'>
+        <div className='col-span-2 gap-4 flex items-center justify-end'>
+          <Button variant={'outline'} type='button' size='lg' onClick={() => {navigateTo(-1)}}>
+            Back
+          </Button>
           <Button size='lg' type='submit'>
             Save
           </Button>

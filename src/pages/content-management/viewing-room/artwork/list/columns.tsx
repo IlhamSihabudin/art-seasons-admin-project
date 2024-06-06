@@ -36,22 +36,38 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Price
+          Artist
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     }
   },
   {
-    accessorKey: 'artwork.current_stock',
+    accessorKey: 'artwork.desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Stock
+          Description
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
     }
+  },
+  {
+    accessorKey: 'artwork.tags',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Tags
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    },
+    cell: ({row}) => {
+      return (
+        <p>{row.original.artwork.tags.join(', ')}</p>
+      )
+    },
   },
   {
     accessorKey: 'is_visible',

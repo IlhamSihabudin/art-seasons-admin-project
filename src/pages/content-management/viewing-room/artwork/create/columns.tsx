@@ -73,6 +73,11 @@ export const columns: ColumnDef<InventoryArtwork>[] = [
         </p>
       )
     },
+    cell: ({row}) => {
+      return (
+        <p>{row.original.tags.join(', ')}</p>
+      )
+    }
   },
   {
     accessorKey: '',

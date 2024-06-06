@@ -1,7 +1,15 @@
 import * as Icon from 'lucide-react'
 
+import dashboardIcon from './../../assets/icons/dashboard.svg';
+import usersIcon from './../../assets/icons/users.svg';
+import contentIcon from './../../assets/icons/content_management.svg';
+import inventoryIcon from './../../assets/icons/inventory.svg';
+import ordersIcon from './../../assets/icons/orders.svg';
+import newsletterIcon from './../../assets/icons/newsletter.svg';
+import settingsIcon from './../../assets/icons/settings.svg';
+
 export type NavMenuProps = {
-  icon: typeof Icon.GridIcon
+  icon: string
   name: string
   to: string
   child?: Omit<NavMenuProps[0], 'icon'>[]
@@ -9,12 +17,12 @@ export type NavMenuProps = {
 
 export const navMenu: NavMenuProps = [
   {
-    icon: Icon.Grid2x2,
+    icon: dashboardIcon,
     name: 'Dashboard',
     to: '/'
   },
   {
-    icon: Icon.Users,
+    icon: usersIcon,
     name: 'User Management',
     to: '/users',
     child: [
@@ -29,7 +37,7 @@ export const navMenu: NavMenuProps = [
     ]
   },
   {
-    icon: Icon.Newspaper,
+    icon: contentIcon,
     name: 'Content Management',
     to: '/content-management',
     child: [
@@ -82,27 +90,27 @@ export const navMenu: NavMenuProps = [
     ]
   },
   {
-    icon: Icon.Package,
+    icon: inventoryIcon,
     name: 'Inventory',
     to: '/inventory'
   },
   {
-    icon: Icon.Archive,
+    icon: ordersIcon,
     name: 'Orders',
     to: '/orders'
   },
   // {
-  //   icon: Icon.MessageCircleQuestion,
+  //   icon: "src/assets/icons/dashboard.svg",
   //   name: 'Enquiries',
   //   to: '/enquiries'
   // },
   {
-    icon: Icon.MessagesSquare,
+    icon: newsletterIcon,
     name: 'Newsletter',
     to: '/newsletter'
   },
   {
-    icon: Icon.Settings,
+    icon: settingsIcon,
     name: 'Settings',
     to: '/settings'
   }

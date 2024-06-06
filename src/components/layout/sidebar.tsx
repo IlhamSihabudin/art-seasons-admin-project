@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import * as Icon from '@radix-ui/react-icons'
+import logoutIcon from '@/assets/icons/logout.svg'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { navMenu } from './nav-menu'
@@ -18,7 +19,8 @@ export const Sidebar = () => {
                 <AccordionItem value={item.name} className='border-0'>
                   <AccordionTrigger className='p-0 [&[data-state=open]]:bg-muted [&[data-state=open]]:rounded-b-none [&[data-state=open]]:text-foreground rounded px-3 py-2.5 text-muted-foreground'>
                     <div className='flex items-center gap-3'>
-                      <item.icon className='w-5 h-5' />
+                      {/* <item.icon className='w-5 h-5' /> */}
+                      <img src={item.icon} />
                       {item.name}
                     </div>
                   </AccordionTrigger>
@@ -57,7 +59,8 @@ export const Sidebar = () => {
                     `${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground'} flex items-center gap-3 py-2.5 px-3 rounded font-medium transition-all text-sm`
                   }
                 >
-                  <item.icon className='w-5 h-5' />
+                  {/* <item.icon className='w-5 h-5' /> */}
+                  <img src={item.icon} />
                   {item.name}
                 </NavLink>
               </li>
@@ -65,8 +68,9 @@ export const Sidebar = () => {
           )}
         </ul>
 
-        <button className='text-sm text-muted-foreground font-medium text-left flex items-center gap-2' onClick={() => logout()} >
-          <Icon.ChevronLeftIcon className='w-5 h-5'/>
+        <button className='text-sm text-muted-foreground font-medium text-left flex items-center gap-3' onClick={() => logout()} >
+          {/* <Icon.ChevronLeftIcon className='w-5 h-5'/> */}
+          <img src={logoutIcon} />
           Log Out
         </button>
       </nav>

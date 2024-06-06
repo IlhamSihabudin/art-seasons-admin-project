@@ -128,14 +128,14 @@ export const NewsletterCreatePage = () => {
       navigateTo('/newsletter')
     } catch (error) {
       const err = error as AxiosError
-      let desc = (err.response?.data as AxiosError).data
-      if (desc == 'Undefined array key "customer_ids"') {
-        desc = 'Select at least one customer'
-      }
+      // let desc = (err.response?.data as AxiosError).data
+      // if (desc == 'Undefined array key "customer_ids"') {
+      //   desc = 'Select at least one customer'
+      // }
       toast({
         variant: 'destructive',
         title: (err.response?.data as AxiosError).message,
-        description: desc
+        // description: desc
       })
     }
   }

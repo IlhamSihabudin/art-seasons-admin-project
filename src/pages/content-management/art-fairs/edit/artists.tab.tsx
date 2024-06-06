@@ -253,7 +253,7 @@ const Artist = ({ artist, artists, setArtists, listArtwork }: ArtistProps) => {
                 <div className='flex items-center gap-4'>
                   <img src={artwork.img} alt='' className='rounded aspect-square object-center object-cover h-14 w-14' />
                   <p className='text-sm truncate'>
-                    {artwork.name} {artwork.id}
+                    {artwork.name}
                   </p>
                 </div>
               </div>

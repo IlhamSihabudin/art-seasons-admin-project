@@ -44,6 +44,28 @@ export const columns: ColumnDef<Publication>[] = [
     }
   },
   {
+    accessorKey: 'current_stock',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Stock
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    }
+  },
+  {
+    accessorKey: 'price',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Price
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    }
+  },
+  {
     accessorKey: 'desc',
     header: ({ column }) => {
       return (
