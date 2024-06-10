@@ -13,22 +13,39 @@ import { AxiosError, AxiosResponse } from 'axios'
 import { flexRender, SortingState, getCoreRowModel, getSortedRowModel, getPaginationRowModel, ColumnFiltersState, getFilteredRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { columns as columnsName, columnsFullname, columnsHeadline, columnsNews } from './columns'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
-import { CaretSortIcon } from '@radix-ui/react-icons'
-import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useGet } from '@/hooks/useGet'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import InputImageMultiple from '@/components/ui/input-image-multiple'
 
-interface ImgProps {
-  id: number
+import InputFeaturedItems from '@/components/ui/input-featured-items'
+import InputNewsMultiple from '@/components/ui/input-news-multiple'
+
+export interface ImgProps {
+  id?: number
   name: string
   img: File | Blob | MediaSource | string
   type?: string
   created_at?: string
   updated_at?: string
+}
+export interface FeaturedItemProps {
+  id?: number
+  name: string
+  tags: string
+  start_date: string
+  end_date: string
+  organizer: string
+  location: string
+  desc: string
+  img: string
+  attach_doc?: string
+  is_visible: boolean
+  category_type: string
+  created_at?: string
+  updated_at?: string
+  remarks?: string
 }
 
 export type ResponseType<T extends string> = T extends 'artists'
@@ -63,7 +80,6 @@ interface FormInput {
 export const HomePage = () => {
   const { toast } = useToast()
   const { data } = useGet<ResponseApi<HomeRepsonse>>('home', '/home')
-  const { data: newsList, isLoading: isNewsLoading } = useGet<ResponseApiList<News>>('list-news', '/news?limit=10000')
 
   const client = useQueryClient()
   const { mutate } = useMutation({
@@ -89,389 +105,154 @@ export const HomePage = () => {
       })
     }
   })
-
-  const [open, setOpen] = useState(false)
-  const [changeColumn, setChangeColumn] = useState<FeaturedTypes>()
+  
   const [selectedType, setSelectedType] = useState<FeaturedTypes>(featuredType[0])
-  const [listFeaturedList, setListFeaturedList] = useState<ResponseType<typeof selectedType.value>[]>([])
-  const [listNews, setListNews] = useState<News[]>([])
-  const [currentTopBanner, setCurrentTopBanner] = useState<ImgProps[]>([])
-  const [currentButtomBanner, setCurrentButtomBanner] = useState<ImgProps[]>([])
 
-  const [topBanner, setTopBanner] = useState<ImgProps[]>([])
-  const [bottomBanner, setBottomBanner] = useState<ImgProps[]>([])
   const [featuredItems, setFeaturedItems] = useState<ResponseType<typeof selectedType.value>[]>([])
   const [latestNews, setLatestNews] = useState<LatestNews[]>([])
 
-  const [previewLatestNews, setPreviewLatestNews] = useState<PreviewProps>()
-
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [rowSelection, setRowSelection] = useState({})
-
-  const columns = useMemo(() => {
-    if (changeColumn?.value === 'artists') {
-      return columnsFullname
-    }
-    if (changeColumn?.value === 'news') {
-      return columnsHeadline
-    }
-    return columnsName
-  }, [changeColumn?.value])
-
-  const table = useReactTable({
-    data: listFeaturedList,
-    columns,
-    enableMultiRowSelection: false,
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: setRowSelection,
-    getPaginationRowModel: getPaginationRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    initialState: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: 5
-      }
-    },
-    state: {
-      sorting,
-      rowSelection,
-      columnFilters
-    }
-  })
+  const [topBannerImages, setTopBannerImages] = useState([])
+  const [bottomBannerImages, setBottomBannerImages] = useState([])
+  const [deletedTopBannerIds, setDeletedTopBannerIds] = useState([])
+  const [deletedBottomBannerIds, setDeletedBottomBannerIds] = useState([])
 
   useEffect(() => {
-    isNewsLoading ? [] : setListNews(newsList?.data)
-    setCurrentTopBanner(data?.data.top_banners)
-    setCurrentButtomBanner(data?.data.bottom_banners)
-    setFeaturedItems(data?.data.featured_items)
-    setLatestNews(data?.data.latest_news)
-  }, [data?.data.bottom_banners, data?.data.featured_items, data?.data.latest_news, data?.data.top_banners, isNewsLoading, newsList?.data])
-
-  const getSelected = Object.keys(rowSelection).map(row => {
-    const selectedFeatureId = (listFeaturedList[row as keyof typeof listFeaturedList] as ResponseType<typeof selectedType.value>).id
-    const featureItems = {
-      type: changeColumn?.value,
-      feature_id: selectedFeatureId
+    if (data?.data.top_banners) {
+      setTopBannerImages(data?.data.top_banners)
     }
-    return featureItems
-  })
 
-  const handlePreviewLastestNews = (preview: PreviewProps) => {
-    setPreviewLatestNews(preview)
-  }
+    if (data?.data.bottom_banners) {
+      setBottomBannerImages(data?.data.bottom_banners)
+    }
+
+    if (data?.data.featured_items) {
+      setFeaturedItems(data?.data.featured_items)
+    }
+
+    if (data?.data.latest_news) {
+      setLatestNews(data?.data.latest_news)
+    }
+  }, [data]) 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (topBanner.length <= 0 || bottomBanner.length <= 0 || getSelected.length <= 0 || !previewLatestNews) {
-      return toast({
-        variant: 'destructive',
-        title: 'Please fill out all field.'
-      })
-    }
+    // if (topBanner.length <= 0 || bottomBanner.length <= 0 || getSelected.length <= 0 || !previewLatestNews) {
+    //   return toast({
+    //     variant: 'destructive',
+    //     title: 'Please fill out all field.'
+    //   })
+    // }
+
+    const topBannerData = topBannerImages.map(item => {
+      if (item.id != '') {
+        item.img = ''
+      }
+      return item
+    })
+
+    const bottomBannerData = bottomBannerImages.map(item => {
+      if (item.id != '') {
+        item.img = ''
+      }
+      return item
+    })
+
+    const featuredItemData = featuredItems.map(item => {
+      const obj = {
+        id: '',
+        type: item.category_type.replace('-', ' '),
+        feature_id: item.id,
+        remarks: item.remarks ?? ''
+      }
+      return obj
+    })
+
+    const latestNewsData = latestNews.map(item => {
+      const obj = {
+        news_id: item.news_id,
+        preview: item.preview
+      }
+
+      return obj
+    })
+
+    // console.log('data top banner', topBannerData)
+    console.log('data featured item', featuredItemData)
 
     const formInput: FormInput = {
-      top_banners: topBanner,
-      bottom_banners: bottomBanner,
-      featured_items: getSelected,
-      latest_news: [previewLatestNews]
+      top_banners: topBannerData,
+      bottom_banners: bottomBannerData,
+      featured_items: featuredItemData,
+      latest_news: latestNewsData,
+      delete_top_banner: deletedTopBannerIds,
+      delete_bottom_banner: deletedBottomBannerIds
     }
 
+    console.log('form', formInput)
     mutate(formInput)
-  }
-
-  function handleBottomBanner(e: React.FormEvent<HTMLInputElement>) {
-    const files = (e.target as HTMLInputElement).files
-    if (files !== null) {
-      const newBanner: ImgProps = {
-        id: bottomBanner?.length + 1,
-        img: files[0],
-        name: files[0].name
-      }
-      const udpatedBanner = [...bottomBanner, newBanner]
-      setBottomBanner(udpatedBanner)
-    }
-  }
-
-  function handleTopBanner(e: React.FormEvent<HTMLInputElement>) {
-    const files = (e.target as HTMLInputElement).files
-    if (files !== null) {
-      const newBanner: ImgProps = {
-        id: topBanner?.length + 1,
-        img: files[0],
-        name: files[0].name
-      }
-      const udpatedBanner = [...topBanner, newBanner]
-      setTopBanner(udpatedBanner)
-    }
-  }
-
-  async function handleSelectType() {
-    // console.log(typeof selectedType.value);
-    try {
-      const body = {
-        category: selectedType.value
-      }
-      const response = await API.post<typeof body, ResponseApi<ResponseType<typeof selectedType.value>[]>>(`/home/search-featured`, body)
-      setListFeaturedList(response.data)
-      setChangeColumn(selectedType)
-    } catch (error) {
-      const err = error as AxiosError
-      toast({
-        variant: 'destructive',
-        title: (err.response?.data as AxiosError).message,
-        description: (err.response?.data as AxiosResponse).data
-      })
-    }
   }
 
   return (
     <section className='space-y-5'>
       <h1 className='font-bold text-3xl'>Home</h1>
       <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' onSubmit={handleSubmit}>
-        <fieldset>
-          {/* TOP BANNER ========================================== */}
+        <fieldset className='space-y-7'>
           <fieldset>
-            <Label className='block mb-2.5'>
-              Top Banner Carousel <span className='text-destructive'>*</span>
-            </Label>
-
-            <Label className='block mb-2.5'>Current Top Banner:</Label>
-            {currentTopBanner?.length > 0 &&
-              currentTopBanner.map(banner => (
-                <div
-                  key={banner.id}
-                  className='flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
-                >
-                  <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={banner.img.toString()} alt={banner.type} />
-                  <div className='flex flex-col justify-between p-4 leading-normal'>
-                    <h5 className='mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white'>{banner.name}</h5>
-                  </div>
-                </div>
-              ))}
-
-            <Label className='block my-2.5'>Update Top Banner:</Label>
-
-            <Reorder.Group axis='y' onReorder={setTopBanner} values={topBanner} className='space-y-2.5 overflow-hidden mb-4'>
-              {topBanner?.map((banner, index) => (
-                <div key={index} className='pb-1'>
-                  <LogoImageCard image={banner} images={topBanner} setImage={setTopBanner} />
-                  <div className='flex items-center flex-1'>
-                    <Input
-                      placeholder='Logo Name'
-                      defaultValue={banner.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const set = {
-                          ...banner,
-                          name: (e.target as HTMLInputElement).value
-                        }
-                        const setName = topBanner?.map(banner => {
-                          if (banner.id === set.id) return set
-                          return banner
-                        })
-                        setTopBanner(setName)
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </Reorder.Group>
-
-            <Input type='file' accept='.jpeg,.png,.jpg' onChange={handleTopBanner} />
-
+            <InputImageMultiple
+              label='Top Banner Carousel'
+              images={topBannerImages}
+              setImages={setTopBannerImages}
+              onDeletedImages={imageIds => {
+                setDeletedTopBannerIds(imageIds);
+              }}
+              onChangeImage={file => {}}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: jpg, jpeg, png</li>
               <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
-          {/* END TOP BANNER ====================================== */}
 
-          {/* BOTTOM BANNER ======================================= */}
-          <fieldset className='mt-8'>
-            <Label className='block mb-2.5'>
-              Bottom Banner <span className='text-destructive'>*</span>
-            </Label>
-
-            <Label className='block mb-2.5'>Current Bottom Banner:</Label>
-
-            {currentButtomBanner?.length > 0 &&
-              currentButtomBanner.map(banner => (
-                <div
-                  key={banner.id}
-                  className='flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
-                >
-                  <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={banner.img.toString()} alt={banner.type} />
-                  <div className='flex flex-col justify-between p-4 leading-normal'>
-                    <h5 className='mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white'>{banner.name}</h5>
-                  </div>
-                </div>
-              ))}
-
-            <Label className='block my-2.5'>Update Bottom Banner:</Label>
-
-            <Reorder.Group axis='y' onReorder={setBottomBanner} values={bottomBanner} className='space-y-2.5 overflow-hidden mb-4'>
-              {bottomBanner?.map((banner, index) => (
-                <div key={index} className='pb-1'>
-                  <LogoImageCard image={banner} images={bottomBanner} setImage={setBottomBanner} />
-                  <div className='flex items-center flex-1'>
-                    <Input
-                      placeholder='Baner Name'
-                      defaultValue={banner.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const set = {
-                          ...banner,
-                          name: (e.target as HTMLInputElement).value
-                        }
-                        const setName = bottomBanner?.map(banner => {
-                          if (banner.id === set.id) return set
-                          return banner
-                        })
-                        setBottomBanner(setName)
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </Reorder.Group>
-
-            <Input type='file' accept='.jpeg,.png,.jpg' onChange={handleBottomBanner} />
-
+          <fieldset>
+            <InputImageMultiple
+              label='Bottom Banner Carousel'
+              images={bottomBannerImages}
+              setImages={setBottomBannerImages}
+              onDeletedImages={imageIds => {
+                setDeletedBottomBannerIds(imageIds)
+              }}
+              onChangeImage={file => {}}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: jpg, jpeg, png</li>
               <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
-          {/* END BOTTOM BANNER =================================== */}
         </fieldset>
 
         <fieldset>
           {/* FEATURED ITEMS ====================================== */}
           <fieldset>
             <div className='space-y-2'>
-              <Label className='block mb-2.5'>Featured Items</Label>
-              {featuredItems &&
-                featuredItems.map((feature, index) => (
-                  <div
-                    key={index}
-                    className='flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
-                  >
-                    <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={feature.img ? feature.img : feature.profile_picture} alt='' />
-                    <div className='flex flex-col justify-between p-4 leading-normal'>
-                      <h5 className='mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white'>
-                        {feature.name ? feature.name : feature.headline ? feature.headline : feature.fullname}
-                      </h5>
-                      <p className='mb-3 font-normal text-gray-700 dark:text-gray-400'>{feature.desc ? feature.desc : feature.author ? feature.author : feature.short_desc}</p>
-                    </div>
-                  </div>
-                ))}
-              <div className='flex items-center gap-5 relative'>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button type='button' variant='outline' role='combobox' aria-expanded={open} className='w-[300px] justify-between'>
-                      {selectedType?.name ? selectedType?.name : 'Select Feature Type'}
-                      <CaretSortIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-[300px] p-0'>
-                    <Command>
-                      <CommandInput placeholder='Search artist' className='h-9' />
-                      <CommandEmpty>Not found.</CommandEmpty>
-                      <CommandGroup>
-                        {featuredType.map(type => (
-                          <CommandItem
-                            key={type.name}
-                            value={type.value}
-                            onSelect={() => {
-                              setSelectedType(type)
-                              setOpen(false)
-                            }}
-                          >
-                            {type.name}
-                            <CheckIcon className={cn('ml-auto h-4 w-4', type.value === selectedType?.value ? 'opacity-100' : 'opacity-0')} />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-
-                <Button type='button' onClick={handleSelectType}>
-                  Select
-                </Button>
-              </div>
+              <Label className='mb-1 block'>
+                Featured Items
+                <span className='text-destructive'> *</span>
+              </Label>
+              <InputFeaturedItems featuredItems={featuredItems} setFeaturedItems={setFeaturedItems} />
             </div>
-            {listFeaturedList?.length > 0 && (
-              <div className='mt-4 space-y-2'>
-                <Input
-                  label='Select Featured Items'
-                  placeholder='Search...'
-                  onChange={event => {
-                    changeColumn.value === 'art fairs' || changeColumn.value === 'exhibitions' || changeColumn.value === 'viewing room' || changeColumn.value === 'publications'
-                      ? table.getColumn('name')?.setFilterValue(event.target.value)
-                      : changeColumn.value === 'artists'
-                      ? table.getColumn('fullname')?.setFilterValue(event.target.value)
-                      : changeColumn.value === 'news'
-                      ? table.getColumn('headline')?.setFilterValue(event.target.value)
-                      : ''
-                  }}
-                />
-
-                <div className='bg-white rounded-lg border'>
-                  <Table>
-                    <TableHeader>
-                      {table.getHeaderGroups().map(headerGroup => (
-                        <TableRow key={headerGroup.id}>
-                          {headerGroup.headers.map(header => {
-                            return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
-                          })}
-                        </TableRow>
-                      ))}
-                    </TableHeader>
-                    <TableBody>
-                      {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map(row => (
-                          <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                            {row.getVisibleCells().map(cell => (
-                              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                            ))}
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={columns.length} className='h-24 text-center'>
-                            No results.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-
-                  <div className='flex items-center justify-between space-x-2 px-4 py-2 border-t'>
-                    <Button type='button' variant='outline' size='sm' onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                      Previous
-                    </Button>
-                    <p className='text-sm font-medium'>
-                      Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-                    </p>
-                    <Button type='button' variant='outline' size='sm' onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
           </fieldset>
           {/* END LATEST NEWS ===================================== */}
 
           <div className='h-8'></div>
           {/* LATEST NEWS ========================================= */}
-          <LatestNewsList listNews={listNews} latestNews={latestNews} previewLatestNews={handlePreviewLastestNews} />
+          <Label className='mb-3 block'>
+            Latest News
+            <span className='text-destructive'> *</span>
+          </Label>
+          <InputNewsMultiple latestNews={latestNews} setLatestNews={setLatestNews} />
           {/* END LATEST NEWS ===================================== */}
         </fieldset>
 
@@ -522,7 +303,17 @@ interface PreviewProps {
   preview: string
 }
 
-const LatestNewsList = ({ listNews, latestNews, previewLatestNews }: { listNews: News[]; latestNews: LatestNews[]; previewLatestNews: (value: PreviewProps) => void }) => {
+const LatestNewsList = ({
+  listNews,
+  latestNews,
+  setLatestNews,
+  previewLatestNews
+}: {
+  listNews: News[]
+  latestNews: LatestNews[]
+  setLatestNews: React.Dispatch<React.SetStateAction<LatestNews[]>>
+  previewLatestNews: (value: PreviewProps) => void
+}) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
@@ -530,7 +321,7 @@ const LatestNewsList = ({ listNews, latestNews, previewLatestNews }: { listNews:
   const tableLatestNews = useReactTable({
     data: listNews,
     columns: columnsNews,
-    enableMultiRowSelection: false,
+    enableMultiRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -556,42 +347,32 @@ const LatestNewsList = ({ listNews, latestNews, previewLatestNews }: { listNews:
     return selectedNews
   })
 
+  console.log('latest news', latestNews)
+
   return (
     <fieldset>
       {listNews.length > 0 && (
         <div className='mt-4 space-y-2'>
           <Label className='block mb-2.5'>Latest News</Label>
           {latestNews &&
-            latestNews.map((news, index) => (
-              <div
-                key={index}
-                className='flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
-              >
-                <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={news.news.img} alt='' />
-                <div className='flex flex-col justify-between p-4 leading-normal relative'>
-                  <h5 className='text-gray-900 font-bold text-md mb-2'>{news.news.headline}</h5>
-                  <p className='text-gray-700 text-base'>Last Preview: {news.preview}</p>
+            latestNews.map((item, index) => (
+              <div className='flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
+                <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={item?.news?.img} alt='' />
+                <div className='flex flex-col justify-between p-4 leading-normal'>
+                  <Label className='block mb-2.5'>{item?.news.headline}</Label>
+                  <Textarea
+                    label='Preview:'
+                    required
+                    value={item.preview}
+                    onChange={event => {
+                      let items = latestNews
+                      items[index].preview = event.target.value
+                      setLatestNews(items)
+                    }}
+                  />
                 </div>
               </div>
             ))}
-          {getSelected.length > 0 && (
-            <div className='flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
-              <img className='max-h-36 aspect-square object-center object-cover rounded-l-lg' src={getSelected[0].img} alt='' />
-              <div className='flex flex-col justify-between p-4 leading-normal'>
-                <Label className='block mb-2.5'>{getSelected[0].headline}</Label>
-                <Textarea
-                  label='Preview:'
-                  required
-                  onChange={event =>
-                    previewLatestNews({
-                      news_id: getSelected[0]?.id,
-                      preview: event.target.value
-                    })
-                  }
-                />
-              </div>
-            </div>
-          )}
           <Input label='Select Latest News' placeholder='Search...' onChange={event => tableLatestNews.getColumn('headline')?.setFilterValue(event.target.value)} />
 
           <div className='bg-white rounded-lg border'>

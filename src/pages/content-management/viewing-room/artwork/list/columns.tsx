@@ -21,7 +21,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'artwork.name',
+    accessorKey: 'name',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -32,7 +32,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     }
   },
   {
-    accessorKey: 'artwork.price',
+    accessorKey: 'artists',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -43,7 +43,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     }
   },
   {
-    accessorKey: 'artwork.desc',
+    accessorKey: 'desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -54,7 +54,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     }
   },
   {
-    accessorKey: 'artwork.tags',
+    accessorKey: 'tags',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -65,7 +65,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
     },
     cell: ({row}) => {
       return (
-        <p>{row.original.artwork.tags.join(', ')}</p>
+        <p>{row?.original?.tags}</p>
       )
     },
   },
@@ -79,7 +79,7 @@ export const columns: ColumnDef<ArtworkRalation>[] = [
         </p>
       )
     },
-    cell: ({ row }) => row.original.artwork.is_visible == 1 ? "Visible" : "Hidden"
+    cell: ({ row }) => row.original?.artwork?.is_visible == 1 ? "Visible" : "Hidden"
   },
   {
     accessorKey: '',

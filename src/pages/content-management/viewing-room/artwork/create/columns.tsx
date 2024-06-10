@@ -31,33 +31,22 @@ export const columns: ColumnDef<InventoryArtwork>[] = [
     },
   },
   {
+    accessorKey: 'artists',
+    header: ({ column }) => {
+      return (
+        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Artist
+          <ArrowUpDown className='ml-2 h-4 w-4' />
+        </p>
+      )
+    },
+  },
+  {
     accessorKey: 'desc',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Description
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    },
-  },
-  {
-    accessorKey: 'price',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Price
-          <ArrowUpDown className='ml-2 h-4 w-4' />
-        </p>
-      )
-    },
-  },
-  {
-    accessorKey: 'current_stock',
-    header: ({ column }) => {
-      return (
-        <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Stock
           <ArrowUpDown className='ml-2 h-4 w-4' />
         </p>
       )
@@ -75,7 +64,7 @@ export const columns: ColumnDef<InventoryArtwork>[] = [
     },
     cell: ({row}) => {
       return (
-        <p>{row.original.tags.join(', ')}</p>
+        <p>{row.original.tags}</p>
       )
     }
   },

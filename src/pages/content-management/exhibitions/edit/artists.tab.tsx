@@ -37,8 +37,8 @@ export const ArtistsTab = ({
   // Formating data
   useEffect(() => {
     const uniqueArtists: Record<number, ArtistsDetail> = {}
-    artworkDetail.forEach(artwork => {
-      artwork.has_artists.forEach(artist => {
+    artworkDetail?.forEach(artwork => {
+      artwork?.has_artists?.forEach(artist => {
         if (!uniqueArtists[artist.artist_id]) {
           uniqueArtists[artist.artist_id] = artist.artist
           uniqueArtists[artist.artist_id].artworks = []

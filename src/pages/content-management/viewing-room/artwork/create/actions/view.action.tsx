@@ -41,7 +41,7 @@ export const ViewAction = ({ data }: { data: InventoryArtwork }) => {
         </div>
         <div className='text-sm'>
           <p className='font-medium'>Artists</p>
-          {data.has_artists.map((artist) => (
+          {data.has_artists?.map((artist) => (
               <p className='py-4 px-3' key={artist.id}>{artist.artist.fullname}</p>
           ))}
         </div>
