@@ -254,7 +254,7 @@ const InputFeaturedItems = ({
                         <img src={linkIcon} width={20} />
                       </td>
                       <td className='text-sm border-b w-full border-[#E3E3E3]'>
-                        {feature?.website}
+                        {`https://artseasons.com/${feature?.category_type}/${feature.id}`}
                       </td>
                     </tr>
                   </table>
