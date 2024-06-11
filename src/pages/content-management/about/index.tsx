@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Reorder } from 'framer-motion'
 import { ChevronsUpDown, Trash } from 'lucide-react'
 
@@ -12,6 +12,9 @@ import { About, ResponseApi } from '@/types/API'
 import { AxiosError } from 'axios'
 import { useGet } from '@/hooks/useGet'
 import InputImage from '@/components/ui/input-image'
+import InputImageMultiple from '@/components/ui/input-image-multiple'
+import InputLinks from '@/pages/settings/components/input_links'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 // interface formArray {
 //   id: number;
@@ -24,18 +27,31 @@ import InputImage from '@/components/ui/input-image'
 // }
 
 interface ImgProps {
-  id: number;
-  name: string;
-  img: File | Blob | MediaSource;
+  id: number
+  name: string
+  img: File | Blob | MediaSource
+}
+
+interface FormInput {
+  news_headline: string
+  featured_img: File
+  desc: string
+  address: string
+  phone_number: string
+  website: string
+  email: string
+  sosmed_link: string[]
+  logos: ImgProps[]
+  carousel: ImgProps[]
 }
 
 export const AboutPage = () => {
-  const { data } = useGet<ResponseApi<About>>("about", "/about")
+  const { data } = useGet<ResponseApi<About>>('about', '/about')
 
-  const { toast } = useToast();
-  
+  const { toast } = useToast()
+
   const news_headline = useRef<HTMLInputElement>(null)
-  const [feat, setFeat] = useState<File>()  
+  const [feat, setFeat] = useState<File>()
   const desc = useRef<HTMLTextAreaElement>(null)
   const address = useRef<HTMLInputElement>(null)
   const phone = useRef<HTMLInputElement>(null)
@@ -44,63 +60,132 @@ export const AboutPage = () => {
   const sosmedLink = useRef<HTMLInputElement>(null)
   const [logos, setLogos] = useState<ImgProps[]>([])
   const [carousel, setCarousel] = useState<ImgProps[]>([])
+  const [links, setLinks] = useState([''])
+  const [deleteLogosIds, setDeleteLogosIds] = useState([])
+  const [deleteCarouselIds, setDeleteCarouselIds] = useState([])
+
+  const client = useQueryClient()
+  const { mutate } = useMutation({
+    mutationFn: async (formInput: FormInput) => {
+      await API.post<FormInput, ResponseApi<About>>(`/about`, formInput, {
+        Accept: 'multipart/form-data',
+        'Content-Type': 'multipart/form-data'
+      })
+    },
+    onSuccess: () => {
+      client.invalidateQueries('about')
+      toast({
+        title: `Success!`,
+        description: 'Updated the data'
+      })
+    },
+    onError: error => {
+      const err = error as AxiosError
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong.',
+        description: (err.response?.data as AxiosError).message
+      })
+    }
+  })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formInput = { 
-      news_headline: news_headline?.current?.value, 
-      featured_img: feat, 
-      desc: desc?.current?.value, 
-      address: address?.current?.value, 
-      phone_number: phone?.current?.value, 
-      website: website?.current?.value, 
-      email: email?.current?.value, 
-      sosmed_link: sosmedLink?.current?.value, 
-      logos,
-      carousel
-    }
-    
-    try {
-      await API.post<typeof formInput, ResponseApi<About>>(`/about`, formInput, {
-        Accept: 'multipart/form-data',
-        "Content-Type": 'multipart/form-data',
-      });
-      await toast({
-        title: `Success!`,
-        description: "Updated the data",
-      })
-    } catch (error) {
-      let errorMessage = "Error posting data";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (error instanceof AxiosError) {
-        errorMessage = error.response?.data.message;
+    e.preventDefault()
+
+    let logosData = logos.map((item, index) => {
+      if (item.id != '') {
+        item.img = ''
       }
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: errorMessage
+      return item
+    })
+
+    let carouselData = carousel.map(item => {
+      if (item.id != '') {
+        item.img = ''
+      }
+      return item
+    })
+
+    if (logosData.length <= 0 || carouselData.length <= 0 || links[0] == '') {
+      return toast({
+        variant: 'destructive',
+        title: `Please fill out all field`
       })
     }
-  };
+
+    const formInput: FormInput = {
+      news_headline: news_headline?.current?.value,
+      featured_img: feat,
+      desc: desc?.current?.value,
+      address: address?.current?.value,
+      phone_number: phone?.current?.value,
+      website: website?.current?.value,
+      email: email?.current?.value,
+      sosmed_link: links,
+      logos: logosData,
+      carousel: carouselData,
+      delete_logos: deleteLogosIds,
+      delete_carousel: deleteCarouselIds
+    }
+
+    console.log('form data', formInput)
+    mutate(formInput)
+
+    // try {
+    //   await API.post<typeof formInput, ResponseApi<About>>(`/about`, formInput, {
+    //     Accept: 'multipart/form-data',
+    //     'Content-Type': 'multipart/form-data'
+    //   })
+    //   await toast({
+    //     title: `Success!`,
+    //     description: 'Updated the data'
+    //   })
+    // } catch (error) {
+    //   let errorMessage = 'Error posting data'
+    //   if (error instanceof Error) {
+    //     errorMessage = error.message
+    //   } else if (error instanceof AxiosError) {
+    //     errorMessage = error.response?.data.message
+    //   }
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Something went wrong.',
+    //     description: errorMessage
+    //   })
+    // }
+  }
+
+  useEffect(() => {
+    if (data?.data?.logos_for_admin) {
+      setLogos(data.data.logos_for_admin)
+    }
+
+    if (data?.data.carousel) {
+      setCarousel(data.data.carousel)
+    }
+
+    if (data?.data?.sosmed_link.length > 0) {
+      setLinks(data?.data.sosmed_link)
+    }
+  }, [data])
 
   function handleChangeFeat(e: React.FormEvent<HTMLInputElement>) {
     const files = (e.target as HTMLInputElement).files
     if (files !== null) {
-      setFeat(files[0]);
+      setFeat(files[0])
     }
   }
 
   function onChangeLogos(e: React.FormEvent<HTMLInputElement>) {
     const files = (e.target as HTMLInputElement).files
-    if (files !== null) {   
+    if (files !== null) {
       const newLogo = {
         id: logos?.length + 1,
         img: files[0],
         name: files[0].name
-      };
-      const updatedLogos = [...logos, newLogo];
-      setLogos(updatedLogos);
+      }
+      const updatedLogos = [...logos, newLogo]
+      setLogos(updatedLogos)
     }
   }
 
@@ -111,9 +196,9 @@ export const AboutPage = () => {
         id: carousel.length + 1,
         img: files[0],
         name: files[0].name
-      };
-      const updatedCarousel = [...carousel, newCarousel];
-      setCarousel(updatedCarousel);
+      }
+      const updatedCarousel = [...carousel, newCarousel]
+      setCarousel(updatedCarousel)
     }
   }
 
@@ -126,24 +211,25 @@ export const AboutPage = () => {
 
           {/* FEATURED IMAGE ===================================== */}
           <fieldset>
-            <Label className='block mb-2.5'>Featured Image <span className='text-destructive'>*</span></Label>
-            {feat && (
+            <Label className='block mb-2.5'>
+              Featured Image <span className='text-destructive'>*</span>
+            </Label>
+            {/* {feat && (
               <FeaturedImage image={feat} />
-            )}
-            {/* <InputImage
-              required={false}
-              label='Featured Image'
-              initialImage={initialImage}
+            )} */}
+            <InputImage
+              initialImage={data?.data.featured_img}
               onChangeImage={file => {
-                setFormData({ ...formData, img: file })
+                // setFormData({ ...formData, img: file })
+                setFeat(file)
               }}
-            /> */}
-            <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' className='hidden' id='featured' onChange={handleChangeFeat} />
-            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='featured' >Replace Image</Label>
+            />
+            {/* <Input accept='.jpeg,.png,.jpg,.gif,.svg' type='file' className='hidden' id='featured' onChange={handleChangeFeat} /> */}
+            {/* <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='featured' >Replace Image</Label> */}
           </fieldset>
           {/* END FEATURED IMAGE ================================== */}
 
-          <Textarea label='Description' required placeholder='Enter your description' rows={20} ref={desc} defaultValue={data?.data.desc}/>
+          <Textarea label='Description' required placeholder='Enter your description' rows={20} ref={desc} defaultValue={data?.data.desc} />
 
           {/* LOGOS IMAGE ========================================= */}
           <fieldset>
@@ -151,7 +237,17 @@ export const AboutPage = () => {
               Logos <span className='text-destructive'>*</span>
             </Label>
 
-            <Reorder.Group axis='y' onReorder={setLogos} values={logos} className='space-y-2.5 overflow-hidden mb-4'>
+            <InputImageMultiple
+              images={logos}
+              setImages={setLogos}
+              onDeletedImage={imageId => {
+                console.log('ids', imageId)
+                setDeleteLogosIds([...deleteLogosIds, imageId])
+              }}
+              onChangeImage={file => {}}
+            />
+
+            {/* <Reorder.Group axis='y' onReorder={setLogos} values={logos} className='space-y-2.5 overflow-hidden mb-4'>
               {logos?.map((logoImage, index) => (
                 <div key={index} className='pb-1'>
                   <LogoImageCard image={logoImage} images={logos} setImage={setLogos} />
@@ -195,7 +291,7 @@ export const AboutPage = () => {
             </Reorder.Group>
             
             <Input type='file' accept='.jpeg,.png,.jpg' onChange={onChangeLogos} id='logos' className='hidden' />
-            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='logos' >Upload Image</Label>
+            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='logos' >Upload Image</Label> */}
 
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: jpg, jpeg, png</li>
@@ -209,15 +305,33 @@ export const AboutPage = () => {
         <fieldset className='md:space-y-7 space-y-3'>
           <Input label='Address' required placeholder='Enter address' ref={address} defaultValue={data?.data.address} />
           <Input label='Phone Number' required placeholder='Phone Number' ref={phone} defaultValue={data?.data.phone_number} />
-          <Input label='Website' required type='url' placeholder='Insert link here' ref={website} defaultValue={data?.data.website}/>
-          <Input label='Email Address' type='email' required placeholder='Email address' ref={email} defaultValue={data?.data.email}/>
-          <Input label='Social Media Link' required placeholder='Enter link' ref={sosmedLink} defaultValue={data?.data.sosmed_link}/>
+          <Input label='Website' required type='url' placeholder='Insert link here' ref={website} defaultValue={data?.data.website} />
+          <Input label='Email Address' type='email' required placeholder='Email address' ref={email} defaultValue={data?.data.email} />
+          {/* <Input label='Social Media Link' required placeholder='Enter link' ref={sosmedLink} defaultValue={data?.data.sosmed_link} /> */}
+          <fieldset>
+            <Label className='block mb-2.5'>
+              Social Media Link
+              <span className='text-destructive'> *</span>
+            </Label>
+            <InputLinks links={links} setLinks={setLinks} />
+          </fieldset>
 
           {/* GALERY CAROUSEL ================================================ */}
           <fieldset>
-            <Label className='block mb-2.5'>Gallery Carousel <span className='text-destructive'>*</span></Label>
+            <Label className='block mb-2.5'>
+              Gallery Carousel <span className='text-destructive'>*</span>
+            </Label>
 
-            <Reorder.Group axis='y' onReorder={setCarousel} values={carousel} className='space-y-2.5 overflow-hidden'>
+            <InputImageMultiple
+              images={carousel}
+              setImages={setCarousel}
+              onDeletedImage={imageId => {
+                setDeleteCarouselIds([...deleteCarouselIds, imageId])
+              }}
+              onChangeImage={file => {}}
+            />
+
+            {/* <Reorder.Group axis='y' onReorder={setCarousel} values={carousel} className='space-y-2.5 overflow-hidden'>
               {carousel?.map((carou, index) => (
                 <div key={index} className='pb-1'>
                   <LogoImageCard key={index} image={carou} images={carousel} setImage={setCarousel} />
@@ -261,7 +375,7 @@ export const AboutPage = () => {
             </Reorder.Group>
 
             <Input type='file' accept='.jpeg,.png,.jpg' onChange={onChangeCarousel} id='gallery' className='hidden' />
-            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='gallery' >Upload Image</Label>
+            <Label className='inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:opacity-80 h-9 px-4 py-2 my-3' htmlFor='gallery' >Upload Image</Label> */}
 
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: jpg, jpeg, png</li>
@@ -282,14 +396,14 @@ export const AboutPage = () => {
 }
 
 type LogoImageProps = {
-  image: ImgProps;
-  images: ImgProps[];
-  setImage: (value: ImgProps[]) => void;
+  image: ImgProps
+  images: ImgProps[]
+  setImage: (value: ImgProps[]) => void
 }
 
 const LogoImageCard = ({ image, images, setImage }: LogoImageProps) => {
   const handleDelete = () => {
-    if (images.length <= 1) return;
+    if (images.length <= 1) return
     setImage(images.filter(img => img.id !== image.id))
   }
 
@@ -302,13 +416,11 @@ const LogoImageCard = ({ image, images, setImage }: LogoImageProps) => {
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
             <img src={URL.createObjectURL(image.img)} alt='' className='h-36 rounded aspect-square object-center object-cover' />
-            <p className='text-sm truncate'>
-              {image.name}
-            </p>
+            <p className='text-sm truncate'>{image.name}</p>
           </div>
         </div>
       </div>
-      <button onClick={handleDelete} className={images.length <= 1 ? "hidden" : ""} disabled={images.length <= 1}>
+      <button onClick={handleDelete} className={images.length <= 1 ? 'hidden' : ''} disabled={images.length <= 1}>
         <Trash size={20} />
       </button>
     </Reorder.Item>
@@ -322,9 +434,7 @@ const FeaturedImage = ({ image }: { image: File }) => {
         <div className='flex items-center justify-between w-full'>
           <div className='flex items-center gap-4 flex-1'>
             <img src={URL.createObjectURL(image)} alt={image?.name} className='rounded aspect-square object-center object-cover' />
-            <p className='text-sm truncate'>
-              {image?.name}
-            </p>
+            <p className='text-sm truncate'>{image?.name}</p>
           </div>
         </div>
       </div>

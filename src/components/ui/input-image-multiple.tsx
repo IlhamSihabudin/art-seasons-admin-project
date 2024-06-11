@@ -12,11 +12,11 @@ interface Props {
   required?: boolean
   images: ImgProps[]
   setImages: React.Dispatch<React.SetStateAction<ImgProps[]>>
-  onDeletedImages: (images: number[]) => void
+  onDeletedImage: (imageId: number) => void
   onChangeImage: (file: File | undefined) => void
 }
 
-const InputImageMultiple: React.FC<Props> = ({ label, size = 24, required = true, images, setImages, onDeletedImages, ...props }) => {
+const InputImageMultiple: React.FC<Props> = ({ label, size = 24, required = true, images, setImages, onDeletedImage, ...props }) => {
   const id = React.useId()
 
   const hiddenFileInput = useRef(null)
@@ -53,12 +53,13 @@ const InputImageMultiple: React.FC<Props> = ({ label, size = 24, required = true
     if (deletedImg.id) {
       // setDeletedImages([...deletedImages, deletedImg.id])
       deleledImages.push(deletedImg.id)
+      onDeletedImage(deletedImg.id)
     }
     data.splice(index, 1)
     // setFormFields(data)
     setImages(data)
 
-    onDeletedImages(deleledImages)
+    // onDeletedImages(deleledImages)
   }
 
   const generateImage = (image: File | string) => {

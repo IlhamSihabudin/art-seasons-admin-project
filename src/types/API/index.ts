@@ -276,6 +276,7 @@ export interface About {
   updated_at: string;
   logos: Logo[];
   carousel: Carousel[];
+  logos_for_admin: Logo[];
 }
 
 export interface Collection {
@@ -340,7 +341,7 @@ export interface FeaturedItem {
 
 export interface LatestNews {
   id: number;
-  news_id: number;
+  news_id?: number;
   preview: string;
   created_at: string;
   updated_at: string;

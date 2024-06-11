@@ -137,13 +137,6 @@ export const HomePage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // if (topBanner.length <= 0 || bottomBanner.length <= 0 || getSelected.length <= 0 || !previewLatestNews) {
-    //   return toast({
-    //     variant: 'destructive',
-    //     title: 'Please fill out all field.'
-    //   })
-    // }
-
     const topBannerData = topBannerImages.map(item => {
       if (item.id != '') {
         item.img = ''
@@ -177,6 +170,13 @@ export const HomePage = () => {
       return obj
     })
 
+    if (topBannerData.length <= 0 || bottomBannerData.length <= 0 || featuredItemData.length <= 0 || latestNewsData.length <= 0) {
+      return toast({
+        variant: 'destructive',
+        title: 'Please fill out all field.'
+      })
+    }
+
     // console.log('data top banner', topBannerData)
     console.log('data featured item', featuredItemData)
 
@@ -203,8 +203,8 @@ export const HomePage = () => {
               label='Top Banner Carousel'
               images={topBannerImages}
               setImages={setTopBannerImages}
-              onDeletedImages={imageIds => {
-                setDeletedTopBannerIds(imageIds);
+              onDeletedImage={imageId => {
+                setDeletedTopBannerIds([...deletedTopBannerIds, imageId]);
               }}
               onChangeImage={file => {}}
             />
@@ -220,8 +220,8 @@ export const HomePage = () => {
               label='Bottom Banner Carousel'
               images={bottomBannerImages}
               setImages={setBottomBannerImages}
-              onDeletedImages={imageIds => {
-                setDeletedBottomBannerIds(imageIds)
+              onDeletedImage={imageId => {
+                setDeletedBottomBannerIds([...deletedBottomBannerIds, imageId])
               }}
               onChangeImage={file => {}}
             />

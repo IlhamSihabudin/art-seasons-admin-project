@@ -34,7 +34,7 @@ const InputLinks = ({ links, setLinks }: { links: string[]; setLinks: React.Disp
             <Input
               required
               wrapperClassName='flex-1'
-              type='url'
+              // type='url'
               placeholder='Enter link (facebook/ instagram/ etc)'
               onChange={event => handleFormChange(event, index)}
               value={link}
