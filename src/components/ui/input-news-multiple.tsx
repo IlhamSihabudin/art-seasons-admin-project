@@ -14,6 +14,7 @@ import { Button } from './button'
 const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNews[]; setLatestNews: React.Dispatch<React.SetStateAction<LatestNews[]>> }) => {
   const { data, isLoading: isNewsLoading } = useGet<ResponseApiList<News>>('list-news', '/news?limit=10000')
 
+  const [addNewVisible, setAddNewVisible] = useState(false)
   const [listNews, setListNews] = useState<News[]>([])
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -80,6 +81,7 @@ const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNe
     items = items.filter(item => item != undefined)
 
     setLatestNews([...latestNews, ...items])
+    setAddNewVisible(false)
   }
 
   const initSelectedTable = () => {
@@ -126,6 +128,7 @@ const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNe
                           placeholder='Max 150 characters will be shown'
                           maxLength={150}
                           value={item?.preview}
+                          readOnly
                           onChange={event => {
                             // let items = latestNews
                             // items[index].preview = event.target.value
@@ -140,7 +143,7 @@ const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNe
                       <td className='text-sm font-semibold' width={80}>
                         <img src={linkIcon} width={20} />
                       </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{item.news.website}</td>
+                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080] break-all'>{item.news.website}</td>
                     </tr>
                   </table>
                 </div>
@@ -153,65 +156,75 @@ const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNe
         ))}
       </Reorder.Group>
 
-      <Input label='Select Latest News' placeholder='Search...' onChange={event => tableLatestNews.getColumn('headline')?.setFilterValue(event.target.value)} />
+      {addNewVisible == false && (
+        <Button type='button' onClick={() => setAddNewVisible(!addNewVisible)}>
+          Add New
+        </Button>
+      )}
 
-      <div className='bg-white rounded-lg border'>
-        <Table>
-          <TableHeader>
-            {tableLatestNews.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {tableLatestNews.getRowModel().rows?.length ? (
-              tableLatestNews.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className='h-24 text-center'>
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      {addNewVisible && (
+        <div>
+          <Input label='Select Latest News' placeholder='Search...' onChange={event => tableLatestNews.getColumn('headline')?.setFilterValue(event.target.value)} />
 
-        <div className='flex items-end justify-end space-x-2 px-4 py-2 border-t'>
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='w-20'
-            onClick={() => {
-              handleSelectedItems()
-            }}
-            // disabled={!table.getCanNextPage()}
-          >
-            Add
-          </Button>
+          <div className='bg-white rounded-lg border'>
+            <Table>
+              <TableHeader>
+                {tableLatestNews.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map(header => {
+                      return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {tableLatestNews.getRowModel().rows?.length ? (
+                  tableLatestNews.getRowModel().rows.map(row => (
+                    <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className='h-24 text-center'>
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+
+            <div className='flex items-end justify-end space-x-2 px-4 py-2 border-t'>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                className='w-20'
+                onClick={() => {
+                  handleSelectedItems()
+                }}
+                // disabled={!table.getCanNextPage()}
+              >
+                Add
+              </Button>
+            </div>
+
+            <div className='flex items-center justify-between space-x-2 px-4 py-2 border-t'>
+              <Button variant='outline' type='button' size='sm' onClick={() => tableLatestNews.previousPage()} disabled={!tableLatestNews.getCanPreviousPage()}>
+                Previous
+              </Button>
+              <p className='text-sm font-medium'>
+                Page {tableLatestNews.getState().pagination.pageIndex + 1} of {tableLatestNews.getPageCount()}
+              </p>
+              <Button variant='outline' type='button' size='sm' onClick={() => tableLatestNews.nextPage()} disabled={!tableLatestNews.getCanNextPage()}>
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
-
-        <div className='flex items-center justify-between space-x-2 px-4 py-2 border-t'>
-          <Button variant='outline' type='button' size='sm' onClick={() => tableLatestNews.previousPage()} disabled={!tableLatestNews.getCanPreviousPage()}>
-            Previous
-          </Button>
-          <p className='text-sm font-medium'>
-            Page {tableLatestNews.getState().pagination.pageIndex + 1} of {tableLatestNews.getPageCount()}
-          </p>
-          <Button variant='outline' type='button' size='sm' onClick={() => tableLatestNews.nextPage()} disabled={!tableLatestNews.getCanNextPage()}>
-            Next
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

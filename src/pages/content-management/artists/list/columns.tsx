@@ -64,14 +64,11 @@ export const columns: ColumnDef<Artist>[] = [
         </p>
       )
     },
-    cell: ({ row }) => (
-      <p>
-        {row.original.is_visible === 1 ? "visible" : "hidden"}
-      </p>
-    )
+    cell: ({ row }) => <p>{row.original.is_visible === 1 ? 'visible' : 'hidden'}</p>
   },
   {
     accessorKey: 'attach_doc',
+    enableResizing: true,
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -81,9 +78,11 @@ export const columns: ColumnDef<Artist>[] = [
       )
     },
     cell: ({ row }) => (
-      <a href={row.original.attach_doc} target='_blank' className='underline'>
-        {row.original.fullname}
-      </a>
+      <div className='max-w-[300px]'>
+        <a href={row.original.attach_doc} target='_blank' className='underline break-all'>
+          {row.original?.attach_doc?.split('/').pop()}
+        </a>
+      </div>
     )
   },
   {

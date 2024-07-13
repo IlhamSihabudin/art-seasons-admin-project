@@ -15,6 +15,7 @@ import { Artist as ArtistType, Collection, ResponseApiList } from '@/types/API'
 import { SelectArtist } from '@/components/select-artist'
 import { CreateTagAction } from '@/components/ui/create-tag-action'
 import Chip from '@/components/ui/chip'
+import InputImage from '@/components/ui/input-image'
 
 interface ArtistDetail extends ArtistType {
   link: string
@@ -70,7 +71,7 @@ export const InventoryArtworksCreatePage = () => {
     if (!name || !price || !current_stock || !desc || tags.length == 0 || !img || selectedArtist.length == 0) {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 
@@ -156,7 +157,13 @@ export const InventoryArtworksCreatePage = () => {
           <Input label='Price' type='number' placeholder='Enter Price' required ref={pric} />
           <Input label='Current Stock' type='number' placeholder='Enter Stock' required ref={stock} />
           <fieldset>
-            <Input label='Artwork Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept='.jpg,.pdf,.png' />
+            {/* <Input label='Artwork Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept='.jpg,.pdf,.png' /> */}
+            <InputImage
+              label='Artwork Image'
+              onChangeImage={file => {
+                setImg(file)
+              }}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Pixel size: 1440 x 480px (min)</li>
               <li>Aspect ratio: 27:9 (square)</li>

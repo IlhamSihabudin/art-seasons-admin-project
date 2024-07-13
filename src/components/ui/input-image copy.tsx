@@ -41,44 +41,25 @@ const InputImage: React.FC<Props> = ({ label, size = 24, required = true, initia
       )}
 
       <div className='flex flex-col w-full gap-2'>
-        <div className='bg-white rounded border flex items-center justify-between flex-1 p-2'>
-          {/* py-3 px-4 */}
-          <div className='flex items-center justify-center gap-4 w-full'>
+        <div className='bg-white rounded border flex items-center justify-between flex-1 pr-3'>
+        {/* py-3 px-4 */}
+          <div className='flex items-center gap-4 w-full'>
             {img ? (
-              <img
-                src={URL.createObjectURL(img)}
-                alt='Feature Image'
-                className='items-center rounded'
-                // className='max-h-36 aspect-square object-center object-cover rounded-l-lg'
-              />
+              <img src={URL.createObjectURL(img)} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-l-lg' />
             ) : (
               <>
                 {initialImage ? (
                   <>
-                    <img
-                      src={initialImage}
-                      alt='Feature Image'
-                      className='items-center rounded'
-                      // className='max-h-36 aspect-square object-center object-cover rounded-l-lg'
-                    />
+                    <img src={initialImage} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-l-lg' />
                   </>
                 ) : (
-                  <>
-                    <div className='bg-gray-300 p-4 rounded-sm'>
-                      <ImageIcon color={'#848897'} width={size} height={size} />
-                    </div>
-                    <p className='text-sm w-full flex-wrap font-light'>No File Choosen</p>
-                  </>
+                  <div className='bg-gray-300 p-4 rounded-sm my-3 ml-4'>
+                    <ImageIcon color={'#848897'} width={size} height={size} />
+                  </div>
                 )}
               </>
             )}
-            {/* {img && (
-              <button type='button'>
-                <Trash size={18} onClick={handleDeleteImage} />
-              </button>
-            )} */}
-          </div>
-          <div className='ml-2'>
+            <p className='text-sm w-full flex-wrap font-light'>{img ? img.name : initialImage ? 'Select the image if you want to change the image on the side' : 'No File Choosen'}</p>
             {img && (
               <button type='button'>
                 <Trash size={18} onClick={handleDeleteImage} />

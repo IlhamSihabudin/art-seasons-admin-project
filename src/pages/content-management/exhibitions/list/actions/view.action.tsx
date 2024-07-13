@@ -68,7 +68,8 @@ const GeneralTab = ({ data }: { data: Exhibition }) => {
       </div>
       <div className='text-sm'>
         <p className='font-medium'>Date</p>
-        <p className='py-4 px-3'>{formatDate(data.start_date)} - {formatDate(data.end_date)}</p>
+        {/* <p className='py-4 px-3'>{formatDate(data.start_date)} - {formatDate(data.end_date)}</p> */}
+        <p className='py-4 px-3'>{data.date}</p>
       </div>
       <div className='text-sm'>
         <p className='font-medium'>Organizer</p>
@@ -84,8 +85,9 @@ const GeneralTab = ({ data }: { data: Exhibition }) => {
       </div>
       <div className='text-sm'>
         <p className='font-medium'>Attach Document</p>
-        <Link className='py-4 px-3 underline block' to={data.attach_doc.toString()}>
-          {data.name}.pdf
+        <Link className='py-4 px-3 underline block' to={data.attach_doc.toString()} target='_blank'>
+          {/* {data.name}.pdf */}
+          {data?.attach_doc?.split('/').pop()}
         </Link>
       </div>
       <div className='text-sm'>

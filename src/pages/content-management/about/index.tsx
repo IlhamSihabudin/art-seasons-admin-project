@@ -109,7 +109,7 @@ export const AboutPage = () => {
     if (logosData.length <= 0 || carouselData.length <= 0 || links[0] == '') {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 

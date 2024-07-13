@@ -57,7 +57,8 @@ export const columns: ColumnDef<ArtFair>[] = [
     },
     cell: ({ row }) => (
       <p className='min-w-[175px]'>
-        {formatDate(row.original.start_date) + " - " + formatDate(row.original.end_date)}
+        {/* {formatDate(row.original.start_date) + " - " + formatDate(row.original.end_date)} */}
+        {row.original.date}
       </p>
     )
   },

@@ -4,9 +4,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { RadioGroup } from '@/components/ui/radio-group'
 import ArtFairForm from '@/types/forms/art_fair_form'
 import InputImage from '@/components/ui/input-image'
+import InputAttachment from '@/components/ui/input-attachment'
 // import { Link } from 'react-router-dom'
 
-export const GeneralTab = ({ formData, setFormData, initialImage }: { formData: ArtFairForm; setFormData: React.Dispatch<React.SetStateAction<ArtFairForm>>; initialImage: string }) => {
+export const GeneralTab = ({ formData, setFormData, initialImage, initialFile }: { formData: ArtFairForm; setFormData: React.Dispatch<React.SetStateAction<ArtFairForm>>; initialImage: string, initialFile: string }) => {
   const handleInputTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setFormData({ ...formData, [name]: value })
@@ -25,10 +26,10 @@ export const GeneralTab = ({ formData, setFormData, initialImage }: { formData: 
           <Input label='Organizer' placeholder='Enter artist or organisation name' required name='organizer' value={formData.organizer} onChange={handleInputTextChange} />
           <Input label='Location' placeholder='Enter Location' required name='location' value={formData.location} onChange={handleInputTextChange} />
           <fieldset>
-            <Label>
+            {/* <Label>
               Profile Picture
-              {/* <span className='text-destructive'>*</span> */}
-            </Label>
+              <span className='text-destructive'>*</span>
+            </Label> */}
             {/* <div className="flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
               <img className="max-h-36 aspect-square object-center object-cover rounded-l-lg" src={formData.img} alt={data?.fullname} />
             </div> */}
@@ -61,16 +62,16 @@ export const GeneralTab = ({ formData, setFormData, initialImage }: { formData: 
             </ul>
           </fieldset>
           <fieldset>
-            <Label>
+            {/* <Label>
               Attach Document
-              {/* <span className='text-destructive'>*</span> */}
-            </Label>
+              <span className='text-destructive'>*</span>
+            </Label> */}
             {/* <div className="flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
               <div className="flex flex-col justify-between p-4 leading-normal">
                 <Link to={data?.attach_doc}  >attach_dukument.pdf</Link>
               </div>
             </div> */}
-            <Input
+            {/* <Input
               type='file'
               required
               onChange={(e: React.FormEvent<HTMLInputElement>) => {
@@ -85,7 +86,15 @@ export const GeneralTab = ({ formData, setFormData, initialImage }: { formData: 
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
-            </ul>
+            </ul> */}
+            <InputAttachment
+              required={false}
+              label='Attach Document'
+              initialFile={initialFile}
+              onChangeFile={file => {
+                setFormData({ ...formData, attach_doc: file })
+              }}
+            />
           </fieldset>
 
           <fieldset>

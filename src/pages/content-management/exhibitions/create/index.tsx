@@ -107,7 +107,7 @@ export const ExhibitionsCreatePage = () => {
     ) {
       toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
       validate = false
     } else if (selectedArtist.length == 0) {

@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { Publication, ResponseApi } from '@/types/API'
 import { API } from '@/lib/API'
+import InputImage from '@/components/ui/input-image'
 
 export const InventoryPublicationCreatePage = () => {
   const { toast } = useToast()
@@ -70,13 +71,28 @@ export const InventoryPublicationCreatePage = () => {
             <Label className='block mb-2.5'>Visibility</Label>
             <RadioGroup className='flex items-center'>
               <div className='flex items-center space-x-2'>
-                <input type='radio' required value='1' id='visible' name='isVisible' checked={isVisible == 1} onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
+                <input
+                  type='radio'
+                  required
+                  value='1'
+                  id='visible'
+                  name='isVisible'
+                  checked={isVisible == 1}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)}
+                />
                 <Label htmlFor='visible' className='font-normal'>
                   Visible
                 </Label>
               </div>
               <div className='flex items-center space-x-2'>
-                <input type='radio' value='0' id='hidden' name='isVisible' checked={isVisible == 0} onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)} />
+                <input
+                  type='radio'
+                  value='0'
+                  id='hidden'
+                  name='isVisible'
+                  checked={isVisible == 0}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => setIsVisible(e.target.value)}
+                />
                 <Label htmlFor='hidden' className='font-normal'>
                   Hidden
                 </Label>
@@ -85,7 +101,13 @@ export const InventoryPublicationCreatePage = () => {
           </fieldset>
         </fieldset>
         <fieldset>
-          <Input label='Publication Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} />
+          {/* <Input label='Publication Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} /> */}
+          <InputImage
+            label='Publication Image'
+            onChangeImage={file => {
+              setImg(file)
+            }}
+          />
           <ul className='text-xs space-y-1 mt-2'>
             <li>Pixel size: 400 x 400px (min)</li>
             <li>Aspect ratio: 1:1 (square)</li>

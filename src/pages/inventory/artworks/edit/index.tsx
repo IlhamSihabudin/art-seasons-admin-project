@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { SelectArtist } from '@/components/select-artist'
 import { CreateTagAction } from '@/components/ui/create-tag-action'
 import Chip from '@/components/ui/chip'
+import InputImage from '@/components/ui/input-image'
 
 interface ArtistDetail extends ArtistType {
   link: string
@@ -95,7 +96,7 @@ export const InventoryArtworksEditPage = () => {
     ) {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 
@@ -203,7 +204,15 @@ export const InventoryArtworksEditPage = () => {
           <Input label='Price' type='number' placeholder='Enter Price' required ref={pric} defaultValue={data.price} />
           <Input label='Current Stock' type='number' placeholder='Enter Stock' required ref={stock} defaultValue={data.current_stock} />
           <fieldset>
-            <Input label='Artwork Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept='.jpg,.pdf,.png' />
+            {/* <Input label='Artwork Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} accept='.jpg,.pdf,.png' /> */}
+            <InputImage
+              required={false}
+              label='Artwork Image'
+              initialImage={data.img}
+              onChangeImage={file => {
+                setImg(file)
+              }}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Pixel size: 1440 x 480px (min)</li>
               <li>Aspect ratio: 27:9 (square)</li>

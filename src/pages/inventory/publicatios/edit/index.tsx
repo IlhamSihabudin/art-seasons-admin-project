@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Publication, ResponseApi } from '@/types/API'
 import { API } from '@/lib/API'
+import InputImage from '@/components/ui/input-image'
 
 export const InventoryPublicationsEditPage = () => {
   const { toast } = useToast()
@@ -101,7 +102,15 @@ export const InventoryPublicationsEditPage = () => {
           </fieldset>
         </fieldset>
         <fieldset>
-          <Input label='Publication Image' type='file' onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} />
+          {/* <Input label='Publication Image' type='file' onChange={(e: React.FormEvent<HTMLInputElement>) => setImg(e.target.files[0])} /> */}
+          <InputImage
+            required={false}
+            label='Publication Image'
+            initialImage={data.img}
+            onChangeImage={file => {
+              setImg(file)
+            }}
+          />
           <ul className='text-xs space-y-1 mt-2'>
             <li>Pixel size: 400 x 400px (min)</li>
             <li>Aspect ratio: 1:1 (square)</li>

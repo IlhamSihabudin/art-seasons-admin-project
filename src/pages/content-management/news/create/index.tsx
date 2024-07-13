@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/ui/use-toast'
 import { useRef, useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
+import InputImage from '@/components/ui/input-image'
 
 export const NewsCreatePage = () => {
   const { toast } = useToast()
@@ -99,7 +100,13 @@ export const NewsCreatePage = () => {
           </fieldset>
           <Input name='author' placeholder="Enter author's name" required label='Author' ref={author} />
           <fieldset>
-            <Input label='Featured Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setPhoto(e.target.files[0])} accept='.jpg,.jpeg,.png' />
+            {/* <Input label='Featured Image' type='file' required onChange={(e: React.FormEvent<HTMLInputElement>) => setPhoto(e.target.files[0])} accept='.jpg,.jpeg,.png' /> */}
+            <InputImage
+              label='Photo'
+              onChangeImage={file => {
+                setPhoto(file)
+              }}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Pixel size: 1440 x 480px (min)</li>
               <li>Aspect ratio: 27:9 (square)</li>

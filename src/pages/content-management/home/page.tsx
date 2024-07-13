@@ -105,7 +105,7 @@ export const HomePage = () => {
       })
     }
   })
-  
+
   const [selectedType, setSelectedType] = useState<FeaturedTypes>(featuredType[0])
 
   const [featuredItems, setFeaturedItems] = useState<ResponseType<typeof selectedType.value>[]>([])
@@ -132,7 +132,7 @@ export const HomePage = () => {
     if (data?.data.latest_news) {
       setLatestNews(data?.data.latest_news)
     }
-  }, [data]) 
+  }, [data])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -173,7 +173,7 @@ export const HomePage = () => {
     if (topBannerData.length <= 0 || bottomBannerData.length <= 0 || featuredItemData.length <= 0 || latestNewsData.length <= 0) {
       return toast({
         variant: 'destructive',
-        title: 'Please fill out all field.'
+        title: 'Please fill out all fields'
       })
     }
 
@@ -199,12 +199,15 @@ export const HomePage = () => {
       <form className='grid md:grid-cols-2 md:gap-10 gap-5 container' onSubmit={handleSubmit}>
         <fieldset className='space-y-7'>
           <fieldset>
+            <Label className='mb-2.5 block'>
+              Top Banner Carousel
+              <span className='text-destructive'> *</span>
+            </Label>
             <InputImageMultiple
-              label='Top Banner Carousel'
               images={topBannerImages}
               setImages={setTopBannerImages}
               onDeletedImage={imageId => {
-                setDeletedTopBannerIds([...deletedTopBannerIds, imageId]);
+                setDeletedTopBannerIds([...deletedTopBannerIds, imageId])
               }}
               onChangeImage={file => {}}
             />
@@ -216,8 +219,11 @@ export const HomePage = () => {
           </fieldset>
 
           <fieldset>
+            <Label className='mb-2.5 block'>
+              Bottom Banner Carousel
+              <span className='text-destructive'> *</span>
+            </Label>
             <InputImageMultiple
-              label='Bottom Banner Carousel'
               images={bottomBannerImages}
               setImages={setBottomBannerImages}
               onDeletedImage={imageId => {
@@ -236,11 +242,11 @@ export const HomePage = () => {
         <fieldset>
           {/* FEATURED ITEMS ====================================== */}
           <fieldset>
+            <Label className='mb-2.5 block'>
+              Featured Items
+              <span className='text-destructive'> *</span>
+            </Label>
             <div className='space-y-2'>
-              <Label className='mb-1 block'>
-                Featured Items
-                <span className='text-destructive'> *</span>
-              </Label>
               <InputFeaturedItems featuredItems={featuredItems} setFeaturedItems={setFeaturedItems} />
             </div>
           </fieldset>
@@ -248,7 +254,7 @@ export const HomePage = () => {
 
           <div className='h-8'></div>
           {/* LATEST NEWS ========================================= */}
-          <Label className='mb-3 block'>
+          <Label className='mb-2.5 block'>
             Latest News
             <span className='text-destructive'> *</span>
           </Label>

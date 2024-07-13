@@ -54,7 +54,7 @@ export const columns: ColumnDef<UsersCustomer>[] = [
     }
   },
   {
-    accessorKey: 'subscribed',
+    accessorKey: 'is_subscribe',
     header: ({ column }) => {
       return (
         <p className='flex items-center cursor-pointer' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>

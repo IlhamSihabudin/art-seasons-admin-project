@@ -7,6 +7,8 @@ import { Artist, ResponseApi, User, UserRequest } from '@/types/API'
 import { useToast } from "@/components/ui/use-toast"
 import { Pencil } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { RadioGroup } from '@/components/ui/radio-group'
 
 export const CustomerEditPage = () => {
   const { toast } = useToast();
@@ -26,6 +28,8 @@ export const CustomerEditPage = () => {
   const params = useParams()
   const navigateTo = useNavigate()
 
+  const [isSubscribed, setisSubscribed] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -37,6 +41,7 @@ export const CustomerEditPage = () => {
           Accept: "application/json",
         })
         isMounted && setData(response.data);
+        setisSubscribed(response.data.is_subscribe)
       } catch (error) {
         console.log('Error fetching data:', error.message);
       }
@@ -59,7 +64,8 @@ export const CustomerEditPage = () => {
       phone_number: phone.current.value,
       address: address.current.value,
       // addtional_address: addition.current.value,
-      postal_code: postal_code.current.value
+      postal_code: postal_code.current.value,
+      is_subcribe: isSubscribed
     }
     
     try {
@@ -97,9 +103,47 @@ export const CustomerEditPage = () => {
             <Pencil size={24} className='cursor-pointer mb-20 hover:opacity-90 transition-opacity absolute right-0 top-16' onClick={() => setPassEditable(true)} />
           </div>
           <Input type='password' disabled={!passEditable} required label='Password Confirmation' placeholder='Enter password confirmation' ref={pass_conf} />
-          <Input type="tel" name="telphone" placeholder="081234567890" pattern="[0-9]{12}" maxLength="12" label='Phone Number' ref={phone} defaultValue={data?.phone_number} />
-          <Input name="postal" placeholder=" 123456" maxLength={6} label='Postal Code' ref={postal_code} defaultValue={data?.postal_code} />
-          <Textarea name="address" label='Address' placeholder='Jakarta Selatan, DKI Jakarta, Indonesia'  ref={address} defaultValue={data?.address} />
+          <Input type="tel" name="telphone" placeholder="+65 9123 4567"  label='Phone Number' ref={phone} defaultValue={data?.phone_number} />
+          <Input name="postal" placeholder="Singapore 123 456"  label='Postal Code' ref={postal_code} defaultValue={data?.postal_code} />
+          <Textarea name="address" label='Address' placeholder='123 High Street, #12-34, Singapore'  ref={address} defaultValue={data?.address} />
+          <fieldset>
+            <Label className='block mb-2.5'>Subscribed to Newsletter</Label>
+            <RadioGroup className='flex items-center'>
+              <div className='flex items-center space-x-2'>
+                <input
+                  type='radio'
+                  value='1'
+                  id='visible'
+                  required
+                  name='isVisible'
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                    // setFormData({ ...formData, is_visible: 1 })
+                    setisSubscribed(true)
+                  }}
+                  checked={isSubscribed == true}
+                />
+                <Label htmlFor='visible' className='font-normal'>
+                  Yes
+                </Label>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <input
+                  type='radio'
+                  value='0'
+                  id='hidden'
+                  name='isVisible'
+                  onChange={(e: React.FormEvent<HTMLInputElement>) => {
+                    // setFormData({ ...formData, is_visible: 0 })
+                    setisSubscribed(false)
+                  }}
+                  checked={isSubscribed == false}
+                />
+                <Label htmlFor='hidden' className='font-normal'>
+                  No
+                </Label>
+              </div>
+            </RadioGroup>
+          </fieldset>
         </fieldset>
 
         {/* <Textarea className='h-full' name="additional" placeholder="Jl. Gatot Subroto, Gg. Alam Bahagia No. 123 " label='Additional Address' ref={addition} defaultValue={data?.additional_address}/> */}

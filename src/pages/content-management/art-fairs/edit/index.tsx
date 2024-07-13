@@ -161,7 +161,7 @@ export const ArtFairsEditPage = () => {
     ) {
       toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
       validate = false
       console.log('form data', formData)
@@ -179,7 +179,7 @@ export const ArtFairsEditPage = () => {
           <TabsTrigger value='artists'>ARTISTS & ARTWORKS</TabsTrigger>
         </TabsList>
         <TabsContent value='general'>
-          <GeneralTab formData={formData} setFormData={setFormData} initialImage={data?.img} />
+          <GeneralTab formData={formData} setFormData={setFormData} initialImage={data?.img} initialFile={data?.attach_doc} />
         </TabsContent>
         <TabsContent value='artists'>
           <ArtistsTab artworkDetail={artworkDetail} selectedArtist={selectedArtist} setSelectedArtist={setSelectedArtist} data={data} />

@@ -39,8 +39,9 @@ export const ArtistsTab = ({
         if (!uniqueArtists[artist.artist_id]) {
           uniqueArtists[artist.artist_id] = artist.artist
           uniqueArtists[artist.artist_id].artworks = []
+          console.log('artists id', artist.artist_id)
         }
-        uniqueArtists[artist.artist_id].artworks?.push({
+        let art = {
           id: artwork.id,
           name: artwork.name,
           desc: artwork.desc,
@@ -51,9 +52,12 @@ export const ArtistsTab = ({
           is_visible: artwork.is_visible,
           created_at: artwork.created_at,
           updated_at: artwork.updated_at
-        })
+        };
+        uniqueArtists[artist.artist_id].artworks?.push(art)
+        console.log('art', art)
       })
     })
+
     const uniqueArtistsArray = Object.values(uniqueArtists).sort((a, b) => a.id - b.id)
     setArtists(uniqueArtistsArray)
     setListArtwork(uniqueArtistsArray)

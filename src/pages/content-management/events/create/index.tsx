@@ -10,6 +10,7 @@ import { Event, ResponseApi } from '@/types/API'
 import { API } from '@/lib/API'
 import { AxiosError } from 'axios'
 import InputImage from '@/components/ui/input-image'
+import InputAttachment from '@/components/ui/input-attachment'
 
 export const EventsCreatePage = () => {
   const { toast } = useToast()
@@ -103,7 +104,7 @@ export const EventsCreatePage = () => {
             </ul>
           </fieldset>
           <fieldset>
-            <Input
+            {/* <Input
               label='Attach Document'
               type='file'
               accept='.pdf'
@@ -118,7 +119,13 @@ export const EventsCreatePage = () => {
             <ul className='text-xs space-y-1 mt-2'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
-            </ul>
+            </ul> */}
+            <InputAttachment
+              label='Attach Document'
+              onChangeFile={file => {
+                setDoc(file)
+              }}
+            />
           </fieldset>
 
           <fieldset>

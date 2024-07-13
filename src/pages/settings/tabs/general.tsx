@@ -77,7 +77,7 @@ export const GeneralTab = () => {
     if (links[0] == '') {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 

@@ -60,6 +60,7 @@ const InputFeaturedItems = ({
   ]
 
   const [open, setOpen] = useState(false)
+  const [addNewVisible, setAddNewVisible] = useState(false)
   const [openListFeature, setOpenListFeature] = useState(false)
   const [changeColumn, setChangeColumn] = useState<FeaturedTypes>()
   const [selectedType, setSelectedType] = useState<FeaturedTypes>(featuredType[0])
@@ -166,8 +167,19 @@ const InputFeaturedItems = ({
 
     items = items.filter(item => item != undefined)
 
-    setFeaturedItems([...featuredItems, ...items])
-    setOpenListFeature(false)
+    let totalItems = items.length + featuredItems.length
+
+    if (totalItems <= 3) {
+      setFeaturedItems([...featuredItems, ...items])
+      setOpenListFeature(false)
+      setAddNewVisible(false)
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Warning',
+        description: `You can only add a maximum of 3 items`
+      })
+    }
   }
 
   const initSelectedTable = () => {
@@ -196,113 +208,120 @@ const InputFeaturedItems = ({
       <Reorder.Group axis='y' onReorder={setFeaturedItems} values={featuredItems} className='space-y-2'>
         {featuredItems.map((feature, index) => (
           <Reorder.Item key={index} value={feature}>
-            <div className='bg-white rounded border flex items-center justify-between flex-1 pr-3 px-2 py-4'>
-              <div className='flex items-center gap-4 w-full'>
-                <button disabled>
-                  <ChevronsUpDown size={24} />
-                </button>
-                <img src={feature.img ? feature.img : feature.profile_picture} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-sm' />
-                <div className='w-full'>
-                  <p className='text-xl font-bold'>{feature.name ? feature.name : feature.headline ? feature.headline : feature.fullname}</p>
-                  <table className='w-full flex flex-col gap-3 mt-3 text-[#808080]'>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        Type
-                      </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{feature?.category_type}</td>
-                    </tr>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        By
-                      </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{feature?.organizer}</td>
-                    </tr>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        Date
-                      </td>
-                      <td className='text-sm w-full border-[#E3E3E3] text-[#808080] flex gap-3'>
-                        <p className='border-b w-full'>{feature?.start_date}</p>
-                        <p>to</p>
-                        <p className='border-b w-full'>{feature?.end_date}</p>
-                      </td>
-                    </tr>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        Location
-                      </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{feature?.location}</td>
-                    </tr>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        Remarks
-                      </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>
-                        <input
-                          placeholder='(Optional)'
-                          className='w-full focus:outline-none'
-                          value={feature?.remarks}
-                          onChange={event => {
-                            feature.remarks = event.target.value
-                            setFeaturedItems([...featuredItems])
-                          }}
-                        />
-                      </td>
-                    </tr>
-                    <tr className='flex flex-row gap-3'>
-                      <td className='text-sm font-semibold' width={80}>
-                        <img src={linkIcon} width={20} />
-                      </td>
-                      <td className='text-sm border-b w-full border-[#E3E3E3]'>
-                        {`https://artseasons.my.id/${feature?.category_type}/${feature.id}`}
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-                <button type='button'>
-                  <Trash size={18} onClick={() => removeItems(index)} />
-                </button>
+            <div className='bg-white rounded border flex items-center justify-between pr-3 px-2 py-4 w-full gap-4'>
+              <button disabled>
+                <ChevronsUpDown size={24} />
+              </button>
+
+              <img src={feature.img ? feature.img : feature.profile_picture} alt='Feature Image' className='max-h-36 aspect-square object-center object-cover rounded-sm' />
+
+              <div className='flex flex-col'>
+                <p className='text-xl font-bold'>{feature.name ? feature.name : feature.headline ? feature.headline : feature.fullname}</p>
+                <table className='flex flex-col gap-3 mt-3 text-[#808080]'>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      Type
+                    </td>
+                    <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{feature?.category_type}</td>
+                  </tr>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      By
+                    </td>
+                    <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080] break-all'>{feature?.organizer}</td>
+                  </tr>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      Date
+                    </td>
+                    <td className='text-sm w-full border-[#E3E3E3] text-[#808080] flex gap-3'>
+                      <p className='border-b w-full'>{feature?.start_date}</p>
+                      <p>to</p>
+                      <p className='border-b w-full'>{feature?.end_date}</p>
+                    </td>
+                  </tr>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      Location
+                    </td>
+                    <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080] break-all'>{feature?.location}</td>
+                  </tr>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      Remarks
+                    </td>
+                    <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080] break-all'>
+                      <input
+                        placeholder='(Optional)'
+                        className='w-full focus:outline-none'
+                        value={feature?.remarks}
+                        onChange={event => {
+                          feature.remarks = event.target.value
+                          setFeaturedItems([...featuredItems])
+                        }}
+                      />
+                    </td>
+                  </tr>
+                  <tr className='flex flex-row gap-3'>
+                    <td className='text-sm font-semibold' width={80}>
+                      <img src={linkIcon} width={20} />
+                    </td>
+                    <td className='text-sm border-b w-full border-[#E3E3E3] break-all'>{`https://artseasons.my.id/${feature?.category_type}/${feature.id}`}</td>
+                  </tr>
+                </table>
               </div>
+
+              <button type='button flex' className='flex-1'>
+                <Trash size={18} onClick={() => removeItems(index)} />
+              </button>
             </div>
           </Reorder.Item>
         ))}
       </Reorder.Group>
 
-      <div className='flex items-center gap-5 relative'>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button type='button' variant='outline' role='combobox' aria-expanded={open} className='w-[300px] justify-between'>
-              {selectedType?.name ? selectedType?.name : 'Select Feature Type'}
-              <CaretSortIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className='w-[300px] p-0'>
-            <Command>
-              <CommandInput placeholder='Search artist' className='h-9' />
-              <CommandEmpty>Not found.</CommandEmpty>
-              <CommandGroup>
-                {featuredType.map(type => (
-                  <CommandItem
-                    key={type.name}
-                    value={type.value}
-                    onSelect={() => {
-                      setSelectedType(type)
-                      setOpen(false)
-                    }}
-                  >
-                    {type.name}
-                    <CheckIcon className={cn('ml-auto h-4 w-4', type.value === selectedType?.value ? 'opacity-100' : 'opacity-0')} />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-
-        <Button type='button' onClick={() => handleSelectType()}>
-          Select
+      {(featuredItems.length < 3 && (addNewVisible == false)) && (
+        <Button type='button' onClick={() => setAddNewVisible(!addNewVisible)}>
+          Add New
         </Button>
-      </div>
+      )}
+
+      {addNewVisible && (
+        <div className='flex items-center gap-5 relative'>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button type='button' variant='outline' role='combobox' aria-expanded={open} className='w-[300px] justify-between'>
+                {selectedType?.name ? selectedType?.name : 'Select Feature Type'}
+                <CaretSortIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-[300px] p-0'>
+              <Command>
+                <CommandInput placeholder='Search artist' className='h-9' />
+                <CommandEmpty>Not found.</CommandEmpty>
+                <CommandGroup>
+                  {featuredType.map(type => (
+                    <CommandItem
+                      key={type.name}
+                      value={type.value}
+                      onSelect={() => {
+                        setSelectedType(type)
+                        setOpen(false)
+                      }}
+                    >
+                      {type.name}
+                      <CheckIcon className={cn('ml-auto h-4 w-4', type.value === selectedType?.value ? 'opacity-100' : 'opacity-0')} />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Button type='button' onClick={() => handleSelectType()}>
+            Select
+          </Button>
+        </div>
+      )}
 
       {openListFeature && listFeaturedList?.length > 0 && (
         <div className='pt-4 space-y-2 '>

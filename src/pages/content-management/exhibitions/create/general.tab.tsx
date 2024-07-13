@@ -5,6 +5,7 @@ import { RadioGroup } from '@/components/ui/radio-group'
 import React from 'react'
 import ExhibitionForm from '@/types/forms/exhibition_form'
 import InputImage from '@/components/ui/input-image'
+import InputAttachment from '@/components/ui/input-attachment'
 
 export const GeneralTab = ({ formData, setFormData }: { formData: ExhibitionForm; setFormData: React.Dispatch<React.SetStateAction<ExhibitionForm>> }) => {
   const handleInputTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,9 +33,12 @@ export const GeneralTab = ({ formData, setFormData }: { formData: ExhibitionForm
           <Input label='Organizer' placeholder='Enter artist or organisation name' required name='organizer' value={formData.organizer} onChange={handleInputTextChange} />
           <Input label='Location' placeholder='Enter Location' required name='location' value={formData.location} onChange={handleInputTextChange} />
           <fieldset>
-            <InputImage label='Featured Image' onChangeImage={file => {
-              setFormData({ ...formData, img: file })
-            }} />
+            <InputImage
+              label='Featured Image'
+              onChangeImage={file => {
+                setFormData({ ...formData, img: file })
+              }}
+            />
             {/* <Input
               label='Featured Image'
               type='file'
@@ -57,7 +61,13 @@ export const GeneralTab = ({ formData, setFormData }: { formData: ExhibitionForm
             </ul>
           </fieldset>
           <fieldset>
-            <Input
+            <InputAttachment
+              label='Attach Document'
+              onChangeFile={file => {
+                setFormData({ ...formData, attach_doc: file })
+              }}
+            />
+            {/* <Input
               label='Attach Document'
               type='file'
               required
@@ -69,7 +79,7 @@ export const GeneralTab = ({ formData, setFormData }: { formData: ExhibitionForm
                 }
               }}
               accept='.pdf'
-            />
+            /> */}
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>

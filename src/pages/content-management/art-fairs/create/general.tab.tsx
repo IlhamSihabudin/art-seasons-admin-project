@@ -5,6 +5,7 @@ import { RadioGroup } from '@/components/ui/radio-group'
 import React from 'react'
 import ArtFairForm from '@/types/forms/art_fair_form'
 import InputImage from '@/components/ui/input-image'
+import InputAttachment from '@/components/ui/input-attachment'
 
 export const GeneralTab = ({ formData, setFormData }: { formData: ArtFairForm; setFormData: React.Dispatch<React.SetStateAction<ArtFairForm>> }) => {
 
@@ -51,7 +52,7 @@ export const GeneralTab = ({ formData, setFormData }: { formData: ArtFairForm; s
             </ul>
           </fieldset>
           <fieldset>
-            <Input
+            {/* <Input
               label='Attach Document'
               type='file'
               required
@@ -67,7 +68,13 @@ export const GeneralTab = ({ formData, setFormData }: { formData: ArtFairForm; s
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
-            </ul>
+            </ul> */}
+            <InputAttachment
+              label='Attach Document'
+              onChangeFile={file => {
+                setFormData({ ...formData, attach_doc: file })
+              }}
+            />
           </fieldset>
 
           <fieldset>

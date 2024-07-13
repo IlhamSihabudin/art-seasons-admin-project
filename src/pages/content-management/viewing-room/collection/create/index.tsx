@@ -107,7 +107,7 @@ export const ViewingRoomCreatePage = () => {
     ) {
       toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
       validate = false
       console.log('form data', formData)

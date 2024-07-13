@@ -10,6 +10,7 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import InputImage from '@/components/ui/input-image'
+import InputAttachment from '@/components/ui/input-attachment'
 
 export const ArtistsCreatePage = () => {
   const { toast } = useToast()
@@ -40,7 +41,7 @@ export const ArtistsCreatePage = () => {
     ) {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 
@@ -111,7 +112,7 @@ export const ArtistsCreatePage = () => {
             </ul>
           </fieldset>
           <fieldset>
-            <Input
+            {/* <Input
               label='Attach Document'
               type='file'
               required
@@ -125,7 +126,13 @@ export const ArtistsCreatePage = () => {
             <ul className='text-xs space-y-1 mt-2'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
-            </ul>
+            </ul> */}
+            <InputAttachment
+              label='Attach Document'
+              onChangeFile={file => {
+                setDoc(file)
+              }}
+            />
           </fieldset>
 
           <fieldset>

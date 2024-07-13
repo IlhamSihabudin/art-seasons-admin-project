@@ -55,8 +55,8 @@ export const ViewingRoomListPage = () => {
           <Input
             className='bg-white pl-8'
             placeholder='Search by name'
-            value={(table.getColumn('artwork_name')?.getFilterValue() as string) ?? ''}
-            onChange={event => table.getColumn('artwork_name')?.setFilterValue(event.target.value)}
+            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+            onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)}
           />
         </div>
       </div>

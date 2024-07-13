@@ -10,6 +10,8 @@ import { Artist, ResponseApi } from '@/types/API'
 import { useToast } from '@/components/ui/use-toast'
 import { AxiosError } from 'axios'
 import { Link } from 'react-router-dom'
+import InputAttachment from '@/components/ui/input-attachment'
+import InputImage from '@/components/ui/input-image'
 
 export const ArtistsEditPage = () => {
   const { toast } = useToast()
@@ -118,7 +120,7 @@ export const ArtistsEditPage = () => {
             ref={short_desc}
           />
           <fieldset>
-            <Label>
+            {/* <Label>
               Profile Picture <span className='text-destructive'>*</span>
             </Label>
             <div className='flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
@@ -133,6 +135,14 @@ export const ArtistsEditPage = () => {
                   setProfile(files[0])
                 }
               }}
+            /> */}
+            <InputImage
+              required={false}
+              label='Profile Picture'
+              initialImage={data?.profile_picture}
+              onChangeImage={file => {
+                setProfile(file)
+              }}
             />
             <ul className='text-xs space-y-1 mt-2'>
               <li>Pixel size: 400 x 400px (min)</li>
@@ -143,7 +153,7 @@ export const ArtistsEditPage = () => {
             </ul>
           </fieldset>
           <fieldset>
-            <Label>
+            {/* <Label>
               Attach Document <span className='text-destructive'>*</span>
             </Label>
             <div className='flex mb-2 flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
@@ -164,7 +174,15 @@ export const ArtistsEditPage = () => {
             <ul className='text-xs space-y-1 mt-2'>
               <li>Format: pdf</li>
               <li>File size: ?MB (max)</li>
-            </ul>
+            </ul> */}
+            <InputAttachment
+              required={false}
+              label='Attach Document'
+              initialFile={data?.attach_doc}
+              onChangeFile={file => {
+                setDoc(file)
+              }}
+            />
           </fieldset>
 
           <fieldset>

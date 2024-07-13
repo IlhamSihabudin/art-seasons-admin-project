@@ -38,7 +38,7 @@ export const PublicationsCreatePage = () => {
     ) {
       return toast({
         variant: 'destructive',
-        title: `Please fill out all field`
+        title: `Please fill out all fields`
       })
     }
 

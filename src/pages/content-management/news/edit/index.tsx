@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { News, ResponseApi } from '@/types/API'
 import { API } from '@/lib/API'
 import { Textarea } from '@/components/ui/textarea'
+import InputImage from '@/components/ui/input-image'
 
 export const NewsEditPage = () => {
   const { toast } = useToast()
@@ -129,7 +130,15 @@ export const NewsEditPage = () => {
           </fieldset>
           <Input name='author' placeholder="Enter author's name" required label='Author' ref={author} defaultValue={data?.author} />
           <fieldset>
-            <Input label='Photo' type='file' onChange={(e: React.FormEvent<HTMLInputElement>) => setPhoto(e.target.files[0])} accept='.jpg,.jpeg,.png' />
+            {/* <Input label='Photo' type='file' onChange={(e: React.FormEvent<HTMLInputElement>) => setPhoto(e.target.files[0])} accept='.jpg,.jpeg,.png' /> */}
+            <InputImage
+              required={false}
+              label='Photo'
+              initialImage={data?.img}
+              onChangeImage={file => {
+                setPhoto(file)
+              }}
+            />
             <ul className='text-xs space-y-1 mt-2.5'>
               <li>Pixel size: 1440 x 480px (min)</li>
               <li>Aspect ratio: 27:9 (square)</li>
