@@ -207,7 +207,7 @@ const InputFeaturedItems = ({
     <>
       <Reorder.Group axis='y' onReorder={setFeaturedItems} values={featuredItems} className='space-y-2'>
         {featuredItems.map((feature, index) => (
-          <Reorder.Item key={index} value={feature}>
+          <Reorder.Item key={feature.created_at} value={feature}>
             <div className='bg-white rounded border flex items-center justify-between pr-3 px-2 py-4 w-full gap-4'>
               <button disabled>
                 <ChevronsUpDown size={24} />
@@ -220,7 +220,7 @@ const InputFeaturedItems = ({
                 <table className='flex flex-col gap-3 mt-3 text-[#808080]'>
                   <tr className='flex flex-row gap-3'>
                     <td className='text-sm font-semibold' width={80}>
-                      Type
+                      Type {feature.id}
                     </td>
                     <td className='text-sm border-b w-full border-[#E3E3E3] text-[#808080]'>{feature?.category_type}</td>
                   </tr>

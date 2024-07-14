@@ -92,7 +92,7 @@ const InputImageMultiple: React.FC<Props> = ({ label, size = 24, required = true
         )}
         <Reorder.Group axis='y' onReorder={setImages} values={images} className='space-y-2'>
           {images.map((image, index) => (
-            <Reorder.Item key={index} value={image} className='flex'>
+            <Reorder.Item key={image.id} value={image} className='flex'>
               <div className=' bg-white rounded border flex items-center justify-between flex-1 pr-3 p-2'>
                 <div className='flex items-center justify-center gap-4 w-full'>
                   {/* <div className='bg-gray-300 p-4 rounded-sm my-3 ml-4'> */}

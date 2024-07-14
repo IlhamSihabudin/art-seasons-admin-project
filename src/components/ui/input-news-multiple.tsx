@@ -107,7 +107,7 @@ const InputNewsMultiple = ({ latestNews, setLatestNews }: { latestNews: LatestNe
     <div className='space-y-2.5'>
       <Reorder.Group axis='y' onReorder={setLatestNews} values={latestNews} className='space-y-2'>
         {latestNews.map((item, index) => (
-          <Reorder.Item key={index} value={item}>
+          <Reorder.Item key={item.id} value={item}>
             <div className='bg-white rounded border flex items-center justify-between flex-1 pr-3 px-2 py-4'>
               <div className='flex items-center gap-4 w-full'>
                 <button disabled>
