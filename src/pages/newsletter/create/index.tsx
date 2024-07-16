@@ -162,7 +162,7 @@ export const NewsletterCreatePage = () => {
               <li>Pixel size: 1440 x 480 (min)</li>
               <li>Aspect ratio: 1:1 (square)</li>
               <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
+              <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </div>

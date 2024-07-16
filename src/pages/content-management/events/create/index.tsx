@@ -99,7 +99,7 @@ export const EventsCreatePage = () => {
               <li>Pixel size: 400 x 300px (min)</li>
               <li>Aspect ratio: 4:3 (square)</li>
               <li>Format: jpg, pdf, png</li>
-              <li>File size: 500KB (max)</li>
+              <li>File size: 2MB (max)</li>
               <li>Resolution: 72ppi (min)</li>
             </ul>
           </fieldset>
