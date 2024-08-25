@@ -63,7 +63,7 @@ export const GeneralTab = () => {
   const email = useRef('')
 
   useEffect(() => {
-    if (data?.data.sosmed_links.length > 0) {
+    if (data?.data?.sosmed_links?.length > 0) {
       setLinks(data?.data.sosmed_links)
     }
     if (data?.data.default_currency != '') {
